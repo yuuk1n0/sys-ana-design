@@ -1,10 +1,12 @@
 import os
 import typing
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
     VERSION: str = "0.1.0"
     APP_TITLE: str = "Vue FastAPI Admin"
     PROJECT_NAME: str = "Vue FastAPI Admin"
@@ -23,6 +25,15 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "3488a63e1765035d386f05409663f55c83bfae3b3c61a932744b20ad14244dcf"  # openssl rand -hex 32
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 day
+    MYSQL_HOST: str = "127.0.0.1"
+    MYSQL_PORT: int = 3306
+    MYSQL_USER: str = "root"
+    MYSQL_PASSWORD: str = "Root@123456"
+    MYSQL_DATABASE: str = "vue_fastapi_admin"
+    REDIS_HOST: str = "127.0.0.1"
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: str = ""
+    REDIS_DB: int = 0
     TORTOISE_ORM: dict = {
         "connections": {
             # SQLite configuration
@@ -32,16 +43,17 @@ class Settings(BaseSettings):
             },
             # MySQL/MariaDB configuration
             # Install with: tortoise-orm[asyncmy]
-            # "mysql": {
-            #     "engine": "tortoise.backends.mysql",
-            #     "credentials": {
-            #         "host": "localhost",  # Database host address
-            #         "port": 3306,  # Database port
-            #         "user": "yourusername",  # Database username
-            #         "password": "yourpassword",  # Database password
-            #         "database": "yourdatabase",  # Database name
-            #     },
-            # },
+            "mysql": {
+                "engine": "tortoise.backends.mysql",
+                "credentials": {
+                    "host": MYSQL_HOST,
+                    "port": MYSQL_PORT,
+                    "user": MYSQL_USER,
+                    "password": MYSQL_PASSWORD,
+                    "database": MYSQL_DATABASE,
+                    "charset": "utf8mb4",
+                },
+            },
             # PostgreSQL configuration
             # Install with: tortoise-orm[asyncpg]
             # "postgres": {
@@ -82,7 +94,7 @@ class Settings(BaseSettings):
         "apps": {
             "models": {
                 "models": ["app.models", "aerich.models"],
-                "default_connection": "sqlite",
+                "default_connection": "mysql",
             },
         },
         "use_tz": False,  # Whether to use timezone-aware datetimes
