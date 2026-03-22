@@ -87,3 +87,65 @@ class AuditLog(BaseModel, TimestampMixin):
     response_time = fields.IntField(default=0, description="响应时间(单位ms)", index=True)
     request_args = fields.JSONField(null=True, description="请求参数")
     response_body = fields.JSONField(null=True, description="返回数据")
+
+
+class ProductCategory(BaseModel, TimestampMixin):
+    store_id = fields.IntField(description="门店ID", index=True)
+    name = fields.CharField(max_length=64, description="分类名称", index=True)
+    sort = fields.IntField(default=0, description="排序", index=True)
+    status = fields.BooleanField(default=True, description="状态", index=True)
+
+    class Meta:
+        table = "product_category"
+        unique_together = ("store_id", "name")
+        indexes = (("store_id", "status"), ("store_id", "sort"))
+
+
+class Product(BaseModel, TimestampMixin):
+    store_id = fields.IntField(description="门店ID", index=True)
+    category_id = fields.IntField(description="分类ID", index=True)
+    product_code = fields.CharField(max_length=64, description="商品编码", index=True)
+    name = fields.CharField(max_length=128, description="商品名称", index=True)
+    barcode = fields.CharField(max_length=64, null=True, description="条码", index=True)
+    unit = fields.CharField(max_length=16, description="单位")
+    sale_price = fields.DecimalField(max_digits=10, decimal_places=2, description="售价", index=True)
+    status = fields.BooleanField(default=True, description="上架状态", index=True)
+    stock_status = fields.BooleanField(default=True, description="库存状态", index=True)
+    low_stock_threshold = fields.IntField(default=0, description="预警阈值", index=True)
+    remark = fields.CharField(max_length=255, null=True, description="备注")
+
+    class Meta:
+        table = "product"
+        unique_together = (("store_id", "product_code"), ("store_id", "barcode"))
+        indexes = (("store_id", "status"), ("store_id", "category_id"), ("store_id", "stock_status"))
+
+
+class StoreInventory(BaseModel, TimestampMixin):
+    store_id = fields.IntField(description="门店ID", index=True)
+    product_id = fields.IntField(description="商品ID", index=True)
+    available_qty = fields.IntField(default=0, description="可用库存", index=True)
+    locked_qty = fields.IntField(default=0, description="锁定库存")
+    low_stock_threshold = fields.IntField(default=0, description="预警阈值", index=True)
+    version = fields.IntField(default=1, description="乐观锁版本")
+    updated_by = fields.IntField(null=True, description="更新人", index=True)
+
+    class Meta:
+        table = "store_inventory"
+        unique_together = ("store_id", "product_id")
+        indexes = (("store_id", "available_qty"), ("store_id", "low_stock_threshold"))
+
+
+class InventoryTxn(BaseModel, TimestampMixin):
+    store_id = fields.IntField(description="门店ID", index=True)
+    product_id = fields.IntField(description="商品ID", index=True)
+    biz_type = fields.CharField(max_length=32, description="业务类型", index=True)
+    biz_no = fields.CharField(max_length=64, description="业务单号", index=True)
+    change_qty = fields.IntField(description="变更数量", index=True)
+    before_qty = fields.IntField(description="变更前数量")
+    after_qty = fields.IntField(description="变更后数量", index=True)
+    remark = fields.CharField(max_length=255, null=True, description="备注")
+    operator_id = fields.IntField(null=True, description="操作人", index=True)
+
+    class Meta:
+        table = "inventory_txn"
+        indexes = (("store_id", "created_at"), ("store_id", "product_id", "created_at"))

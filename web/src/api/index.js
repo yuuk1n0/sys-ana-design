@@ -39,4 +39,22 @@ export default {
   deleteDept: (params = {}) => request.delete('/dept/delete', { params }),
   // auditlog
   getAuditLogList: (params = {}) => request.get('/auditlog/list', { params }),
+  // product categories
+  getProductCategoryList: (params = {}) => request.get('/product-category/list', { params }),
+  createProductCategory: (data = {}, params = {}) =>
+    request.post('/product-category/create', data, { params }),
+  updateProductCategory: (data = {}, params = {}) =>
+    request.post('/product-category/update', data, { params }),
+  deleteProductCategory: (params = {}) => request.delete('/product-category/delete', { params }),
+  // products
+  getProductList: (params = {}) => request.get('/product/list', { params }),
+  getProductById: (params = {}) => request.get('/product/get', { params }),
+  createProduct: (data = {}, params = {}) => request.post('/product/create', data, { params }),
+  updateProduct: (data = {}, params = {}) => request.post('/product/update', data, { params }),
+  changeProductStatus: (data = {}, params = {}) =>
+    request.post('/product/change_status', data, { params }),
+  // inventories
+  getInventoryBalanceList: (params = {}) => request.get('/inventory/balance/list', { params }),
+  getInventoryTxnList: (params = {}) => request.get('/inventory/txn/list', { params }),
+  getInventoryWarningList: (params = {}) => request.get('/inventory/warning/list', { params }),
 }

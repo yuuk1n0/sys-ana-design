@@ -174,6 +174,77 @@ async def init_menus():
             keepalive=False,
             redirect="",
         )
+    await ensure_store_menus()
+
+
+async def ensure_store_menus():
+    store_parent = await Menu.filter(path="/store", parent_id=0).first()
+    if not store_parent:
+        store_parent = await Menu.create(
+            menu_type=MenuType.CATALOG,
+            name="门店运营",
+            path="/store",
+            order=3,
+            parent_id=0,
+            icon="material-symbols:storefront-outline",
+            is_hidden=False,
+            component="Layout",
+            keepalive=False,
+            redirect="/store/product",
+        )
+    children = [
+        dict(
+            name="商品分类",
+            path="product-category",
+            order=1,
+            icon="material-symbols:category-outline",
+            component="/store/product-category",
+        ),
+        dict(
+            name="商品管理",
+            path="product",
+            order=2,
+            icon="material-symbols:inventory-2-outline",
+            component="/store/product",
+        ),
+        dict(
+            name="库存余额",
+            path="inventory-balance",
+            order=3,
+            icon="material-symbols:inventory-2",
+            component="/store/inventory-balance",
+        ),
+        dict(
+            name="库存流水",
+            path="inventory-txn",
+            order=4,
+            icon="material-symbols:receipt-long-outline",
+            component="/store/inventory-txn",
+        ),
+        dict(
+            name="库存预警",
+            path="inventory-warning",
+            order=5,
+            icon="material-symbols:warning-outline",
+            component="/store/inventory-warning",
+        ),
+    ]
+    for item in children:
+        exists = await Menu.filter(path=item["path"], parent_id=store_parent.id).exists()
+        if exists:
+            continue
+        await Menu.create(
+            menu_type=MenuType.MENU,
+            name=item["name"],
+            path=item["path"],
+            order=item["order"],
+            parent_id=store_parent.id,
+            icon=item["icon"],
+            is_hidden=False,
+            component=item["component"],
+            keepalive=False,
+            redirect="",
+        )
 
 
 async def init_apis():
@@ -223,6 +294,38 @@ async def init_roles():
         # 为普通用户分配基本API
         basic_apis = await Api.filter(Q(method__in=["GET"]) | Q(tags="基础模块"))
         await user_role.apis.add(*basic_apis)
+    await ensure_role_permissions()
+
+
+async def ensure_role_permissions():
+    admin_role = await Role.filter(name="管理员").first()
+    if admin_role:
+        all_apis = await Api.all()
+        existed_apis = await admin_role.apis
+        merge_apis = list({api.id: api for api in (list(existed_apis) + list(all_apis))}.values())
+        await admin_role.apis.clear()
+        await admin_role.apis.add(*merge_apis)
+        all_menus = await Menu.all()
+        existed_menus = await admin_role.menus
+        merge_menus = list({menu.id: menu for menu in (list(existed_menus) + list(all_menus))}.values())
+        await admin_role.menus.clear()
+        await admin_role.menus.add(*merge_menus)
+
+    user_role = await Role.filter(name="普通用户").first()
+    if user_role:
+        basic_apis = await Api.filter(Q(method__in=["GET"]) | Q(tags="基础模块"))
+        store_apis = await Api.filter(tags__in=["商品模块", "商品分类模块", "库存模块"])
+        origin_apis = await user_role.apis
+        merge_apis = list({api.id: api for api in (list(origin_apis) + list(basic_apis) + list(store_apis))}.values())
+        await user_role.apis.clear()
+        await user_role.apis.add(*merge_apis)
+        store_menu = await Menu.filter(path="/store", parent_id=0).first()
+        if store_menu:
+            store_children = await Menu.filter(parent_id=store_menu.id)
+            origin_menus = await user_role.menus
+            merged_menus = list({m.id: m for m in (origin_menus + [store_menu] + list(store_children))}.values())
+            await user_role.menus.clear()
+            await user_role.menus.add(*merged_menus)
 
 
 async def init_data():
