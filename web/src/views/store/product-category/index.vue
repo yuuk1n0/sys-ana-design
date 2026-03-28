@@ -1,6 +1,15 @@
 <script setup>
-import { h, onMounted, ref, resolveDirective, withDirectives } from 'vue'
-import { NButton, NForm, NFormItem, NInput, NInputNumber, NPopconfirm, NSwitch } from 'naive-ui'
+import { computed, h, onMounted, ref, resolveDirective, withDirectives } from 'vue'
+import {
+  NButton,
+  NForm,
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NPopconfirm,
+  NSwitch,
+  NTag,
+} from 'naive-ui'
 
 import CommonPage from '@/components/page/CommonPage.vue'
 import QueryBarItem from '@/components/query-bar/QueryBarItem.vue'
@@ -16,6 +25,7 @@ defineOptions({ name: '商品分类' })
 const $table = ref(null)
 const queryItems = ref({})
 const vPermission = resolveDirective('permission')
+const tableRows = ref([])
 
 const {
   modalVisible,
@@ -40,6 +50,19 @@ onMounted(() => {
   $table.value?.handleSearch()
 })
 
+function handleTableDataChange(rows) {
+  tableRows.value = rows || []
+}
+
+const summaryCards = computed(() => {
+  const rows = tableRows.value || []
+  const enabledCount = rows.filter((item) => item.status).length
+  return [
+    { title: '分类总数', value: rows.length, type: 'neutral' },
+    { title: '启用分类', value: enabledCount, type: 'success' },
+  ]
+})
+
 const rules = {
   name: [
     {
@@ -60,7 +83,11 @@ const columns = [
     width: 120,
     align: 'center',
     render(row) {
-      return h(NSwitch, { value: row.status, disabled: true })
+      return h(
+        NTag,
+        { bordered: false, type: row.status ? 'success' : 'warning' },
+        { default: () => (row.status ? '启用' : '停用') }
+      )
     },
   },
   {
@@ -110,6 +137,17 @@ const columns = [
 
 <template>
   <CommonPage show-footer title="商品分类">
+    <section class="store-summary">
+      <div
+        v-for="item in summaryCards"
+        :key="item.title"
+        class="store-summary-item"
+        :class="item.type"
+      >
+        <div class="store-summary-label">{{ item.title }}</div>
+        <div class="store-summary-value">{{ item.value }}</div>
+      </div>
+    </section>
     <template #action>
       <NButton
         v-permission="'post/api/v1/product-category/create'"
@@ -125,6 +163,7 @@ const columns = [
       :columns="columns"
       :get-data="api.getProductCategoryList"
       :is-pagination="false"
+      @on-data-change="handleTableDataChange"
     >
       <template #queryBar>
         <QueryBarItem label="分类名称" :label-width="70">
@@ -164,3 +203,38 @@ const columns = [
     </CrudModal>
   </CommonPage>
 </template>
+
+<style scoped lang="scss">
+.store-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.store-summary-item {
+  border: 1px solid #e9efdd;
+  border-radius: 10px;
+  background: #f8fbf2;
+  padding: 12px 14px;
+}
+
+.store-summary-label {
+  color: #7a8a72;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.store-summary-value {
+  margin-top: 6px;
+  color: #2f3a1f;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.store-summary-item.success {
+  background: #f2fbf5;
+  border-color: #deefe3;
+}
+</style>

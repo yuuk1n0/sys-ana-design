@@ -1,5 +1,5 @@
 <script setup>
-import { h, onMounted, ref, resolveDirective, withDirectives } from 'vue'
+import { computed, h, onMounted, ref, resolveDirective, withDirectives } from 'vue'
 import {
   NButton,
   NForm,
@@ -9,6 +9,7 @@ import {
   NPopconfirm,
   NSelect,
   NSwitch,
+  NTag,
 } from 'naive-ui'
 
 import CommonPage from '@/components/page/CommonPage.vue'
@@ -26,6 +27,7 @@ const $table = ref(null)
 const queryItems = ref({})
 const vPermission = resolveDirective('permission')
 const categoryOptions = ref([])
+const tableRows = ref([])
 
 const {
   modalVisible,
@@ -51,7 +53,7 @@ onMounted(async () => {
 })
 
 async function getCategories() {
-  const res = await api.getProductCategoryList()
+  const res = await api.getProductCategoryList({ status: 1 })
   categoryOptions.value = (res.data || []).map((item) => ({ label: item.name, value: item.id }))
 }
 
@@ -71,6 +73,25 @@ const rules = {
   name: [{ required: true, message: '请输入商品名称', trigger: ['input', 'blur'] }],
   unit: [{ required: true, message: '请输入单位', trigger: ['input', 'blur'] }],
   sale_price: [{ required: true, message: '请输入售价', trigger: ['input', 'blur'] }],
+  low_stock_threshold: [{ required: true, message: '请输入预警阈值', trigger: ['input', 'blur'] }],
+}
+
+const summaryCards = computed(() => {
+  const rows = tableRows.value || []
+  const total = rows.length
+  const onShelf = rows.filter((item) => item.status).length
+  const lowStock = rows.filter((item) => item.is_low_stock).length
+  const noStock = rows.filter((item) => !item.stock_status).length
+  return [
+    { title: '在管商品', value: total, type: 'neutral' },
+    { title: '上架中', value: onShelf, type: 'success' },
+    { title: '低库存', value: lowStock, type: 'warning' },
+    { title: '缺货', value: noStock, type: 'danger' },
+  ]
+})
+
+function handleTableDataChange(rows) {
+  tableRows.value = rows || []
 }
 
 const columns = [
@@ -86,7 +107,15 @@ const columns = [
     },
   },
   { title: '单位', key: 'unit', width: 80, align: 'center' },
-  { title: '售价', key: 'sale_price', width: 100, align: 'center' },
+  {
+    title: '售价',
+    key: 'sale_price',
+    width: 100,
+    align: 'center',
+    render(row) {
+      return h('span', {}, `¥${Number(row.sale_price || 0).toFixed(2)}`)
+    },
+  },
   { title: '可用库存', key: 'available_qty', width: 100, align: 'center' },
   {
     title: '库存状态',
@@ -94,7 +123,11 @@ const columns = [
     width: 100,
     align: 'center',
     render(row) {
-      return h('span', {}, row.stock_status ? '有货' : '缺货')
+      return h(
+        NTag,
+        { bordered: false, type: row.stock_status ? 'success' : 'warning' },
+        { default: () => (row.stock_status ? '有货' : '缺货') }
+      )
     },
   },
   {
@@ -103,11 +136,9 @@ const columns = [
     width: 100,
     align: 'center',
     render(row) {
-      return h(NSwitch, {
-        size: 'small',
-        value: row.status,
-        onUpdateValue: () => handleToggleStatus(row),
-      })
+      return h(NTag, { bordered: false, type: row.status ? 'success' : 'default' }, () =>
+        row.status ? '已上架' : '已下架'
+      )
     },
   },
   {
@@ -156,6 +187,17 @@ const columns = [
 
 <template>
   <CommonPage show-footer title="商品管理">
+    <section class="store-summary">
+      <div
+        v-for="item in summaryCards"
+        :key="item.title"
+        class="store-summary-item"
+        :class="item.type"
+      >
+        <div class="store-summary-label">{{ item.title }}</div>
+        <div class="store-summary-value">{{ item.value }}</div>
+      </div>
+    </section>
     <template #action>
       <NButton v-permission="'post/api/v1/product/create'" type="primary" @click="handleAdd">
         <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新建商品
@@ -166,6 +208,7 @@ const columns = [
       v-model:query-items="queryItems"
       :columns="columns"
       :get-data="api.getProductList"
+      @on-data-change="handleTableDataChange"
     >
       <template #queryBar>
         <QueryBarItem label="商品名称" :label-width="70">
@@ -191,6 +234,18 @@ const columns = [
             :options="[
               { label: '上架', value: 1 },
               { label: '下架', value: 0 },
+            ]"
+            clearable
+            placeholder="请选择"
+            style="width: 120px"
+          />
+        </QueryBarItem>
+        <QueryBarItem label="库存" :label-width="40">
+          <NSelect
+            v-model:value="queryItems.stock_status"
+            :options="[
+              { label: '有货', value: 1 },
+              { label: '缺货', value: 0 },
             ]"
             clearable
             placeholder="请选择"
@@ -248,3 +303,48 @@ const columns = [
     </CrudModal>
   </CommonPage>
 </template>
+
+<style scoped lang="scss">
+.store-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.store-summary-item {
+  border: 1px solid #e9efdd;
+  border-radius: 10px;
+  background: #f8fbf2;
+  padding: 12px 14px;
+}
+
+.store-summary-label {
+  color: #7a8a72;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.store-summary-value {
+  margin-top: 6px;
+  color: #2f3a1f;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.store-summary-item.success {
+  background: #f2fbf5;
+  border-color: #deefe3;
+}
+
+.store-summary-item.warning {
+  background: #fff8ec;
+  border-color: #f5e7c9;
+}
+
+.store-summary-item.danger {
+  background: #fff2f0;
+  border-color: #f6d9d2;
+}
+</style>

@@ -1,16 +1,5 @@
 <template>
-  <div
-    bg="#fafafc"
-    min-h-60
-    flex
-    items-start
-    justify-between
-    b-1
-    rounded-8
-    p-15
-    bc-ccc
-    dark:bg-black
-  >
+  <div class="store-query-bar">
     <n-space wrap :size="[35, 15]">
       <slot />
       <div>
@@ -24,3 +13,16 @@
 <script setup>
 const emit = defineEmits(['search', 'reset'])
 </script>
+
+<style scoped lang="scss">
+.store-query-bar {
+  min-height: 60px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border: 1px solid #e7edd7;
+  border-radius: 10px;
+  padding: 15px;
+  background: #f8fbf2;
+}
+</style>

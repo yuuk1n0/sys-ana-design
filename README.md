@@ -4,45 +4,26 @@
   </a>
 </p>
 
-<h1 align="center">vue-fastapi-admin</h1>
+<h1 align="center">课程设计：超市管理系统</h1>
 
 [English](./README-en.md) | 简体中文
 
-基于 FastAPI + Vue3 + Naive UI 的现代化前后端分离开发平台，融合了 RBAC 权限管理、动态路由和 JWT 鉴权，助力中小型应用快速搭建，也可用于学习参考。
+本项目为课程设计超市管理系统，基于 FastAPI + Vue3 + Naive UI 前后端分离架构开发，在原有权限管理能力基础上，扩展了商品、分类、库存等业务模块，面向“商品流转与库存管理”的教学场景。
 
-### 特性
-- **最流行技术栈**：基于 Python 3.11 和 FastAPI 高性能异步框架，结合 Vue3 和 Vite 等前沿技术进行开发，同时使用高效的 npm 包管理器 pnpm。
-- **代码规范**：项目内置丰富的规范插件，确保代码质量和一致性，有效提高团队协作效率。
-- **动态路由**：后端动态路由，结合 RBAC（Role-Based Access Control）权限模型，提供精细的菜单路由控制。
-- **JWT鉴权**：使用 JSON Web Token（JWT）进行身份验证和授权，增强应用的安全性。
-- **细粒度权限控制**：实现按钮和接口级别的权限控制，确保不同用户或角色在界面操作和接口访问时具有不同的权限限制。
+### 课程设计定位
+- **项目目标**：完成一个可运行的超市管理后台，支撑管理员进行商品、库存、角色权限等核心操作。
+- **面向角色**：系统管理员、运营人员（课程演示时可按角色分配功能）。
+- **核心能力**：登录鉴权、RBAC 权限控制、业务模块管理、接口文档联调。
 
-### 在线预览
-- [http://47.111.145.81:3000](http://47.111.145.81:3000)
+### 已实现模块（可按课程进度继续扩展）
+- **系统管理**：用户管理、角色管理、菜单管理、API 权限管理、审计日志。
+- **商品管理**：商品分类管理、商品信息管理。
+- **库存管理**：库存记录与库存变动查询。
+- **基础能力**：JWT 鉴权、动态路由、接口级权限控制。
+
+### 默认测试账号
 - username: admin
 - password: 123456
-
-### 登录页
-
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/login.jpg)
-### 工作台
-
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/workbench.jpg)
-
-### 用户管理
-
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/user.jpg)
-### 角色管理
-
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/role.jpg)
-
-### 菜单管理
-
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/menu.jpg)
-
-### API管理
-
-![image](https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/api.jpg)
 
 ### 快速开始
 #### 方法一：dockerhub拉取镜像
@@ -86,6 +67,8 @@ password：123456
 #### 后端
 启动项目需要以下环境：
 - Python 3.11
+- MySQL 8.0+（默认连接 mysql）
+- Redis 6.0+（用于缓存/会话等能力）
 
 #### 方法一（推荐）：使用 uv 安装依赖
 1. 安装 uv
@@ -103,7 +86,7 @@ source .venv/bin/activate  # Linux/Mac
 
 3. 安装依赖
 ```sh
-uv add pyproject.toml
+uv sync
 ```
 
 4. 启动服务
@@ -134,7 +117,9 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 python run.py
 ```
 
-服务现在应该正在运行，访问 http://localhost:9999/docs 查看API文档
+服务启动后可访问：
+- 后端接口文档：http://localhost:9999/docs
+- 后端服务地址：http://127.0.0.1:9999
 
 #### 前端
 启动项目需要以下环境：
@@ -155,6 +140,46 @@ pnpm i # 或者 npm i
 ```sh
 pnpm dev
 ```
+
+4. 访问前端
+```text
+http://127.0.0.1:3100
+```
+
+### 项目启动配置说明
+
+#### 后端配置（根目录 `.env`）
+```env
+MYSQL_HOST=127.0.0.1
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=Root@123456
+MYSQL_DATABASE=vue_fastapi_admin
+
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DB=0
+```
+
+#### 前端配置（`web/.env` 与 `web/.env.development`）
+```env
+VITE_PORT = 3100
+VITE_USE_PROXY = true
+VITE_BASE_API = '/api/v1'
+```
+
+#### 端口与代理关系
+- 前端开发端口：`3100`
+- 后端服务端口：`9999`
+- 代理规则：`/api/v1` -> `http://127.0.0.1:9999`
+
+### 课程设计注意事项
+- 首次运行前请确认 MySQL、Redis 服务已启动，且 `.env` 与本机环境一致。
+- 首次启动后端会执行数据库初始化与迁移，如遇迁移异常可检查 `migrations` 目录与数据库连接权限。
+- 前后端联调时保持后端先启动，再启动前端，避免代理请求失败。
+- 团队开发建议统一分支命名、接口返回结构和数据库字段命名规则。
+- 提交前至少执行一次前端 `pnpm lint`，避免低级格式与规范问题。
 
 ### 目录说明
 
@@ -219,26 +244,21 @@ pnpm dev
             └── workbench  // 工作台页面
 ```
 
-### 进群交流
-进群的条件是给项目一个star，小小的star是作者维护下去的动力。
+### 小组成员负责模块（模板）
 
-你可以在群里提出任何疑问，我会尽快回复答疑。
+| 序号 | 成员姓名 | 负责模块 | 具体内容 | 完成状态 |
+|---|---|---|---|---|
+| 1 | 待填写 | 系统管理 | 用户/角色/菜单/权限 | 待开始 |
+| 2 | 待填写 | 商品管理 | 商品分类、商品信息、商品查询 | 待开始 |
+| 3 | 待填写 | 库存管理 | 入库、出库、库存盘点、预警 | 待开始 |
+| 4 | 待填写 | 前端页面 | 页面交互、表单校验、联调适配 | 待开始 |
+| 5 | 待填写 | 测试与文档 | 用例设计、测试记录、答辩材料 | 待开始 |
 
-<img width="300" src="https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/group.jpg">
+### 小组成员留名
 
-## 打赏
-如果项目有帮助到你，可以请作者喝杯咖啡~
-
-<div style="display: flex">
-    <img src="https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/1.jpg" width="300">
-    <img src="https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/2.jpg" width="300">
-</div>
-
-## 定制开发
-如果有基于该项目的定制需求或其他合作，请添加下方微信，备注来意
-
-<img width="300" src="https://github.com/mizhexiaoxiao/vue-fastapi-admin/blob/main/deploy/sample-picture/3.jpg">
-
-### Visitors Count
-
-<img align="left" src = "https://profile-counter.glitch.me/vue-fastapi-admin/count.svg" alt="Loading">
+- 组长：`待填写`
+- 成员1：`待填写`
+- 成员2：`待填写`
+- 成员3：`待填写`
+- 成员4：`待填写`
+- 指导教师：`待填写`

@@ -1,6 +1,6 @@
 <template>
   <transition name="fade-slide" mode="out-in" appear>
-    <section class="cus-scroll-y wh-full flex-col bg-[#f5f6fb] p-15 dark:bg-hex-121212">
+    <section class="cus-scroll-y store-page-wrap wh-full flex-col p-15">
       <slot />
       <AppFooter v-if="showFooter" mt-15 />
       <n-back-top :bottom="20" />
@@ -16,3 +16,9 @@ defineProps({
   },
 })
 </script>
+
+<style scoped lang="scss">
+.store-page-wrap {
+  background: linear-gradient(180deg, #f3f8ea 0%, #f6f8f4 56%, #f7f8f4 100%);
+}
+</style>

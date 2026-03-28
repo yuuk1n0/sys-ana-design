@@ -11,6 +11,8 @@ html {
 
 body {
   font-size: 16px;
+  background: #f4f8ed;
+  color: #2f3a1f;
 }
 
 #app {
@@ -65,10 +67,10 @@ body {
   }
   &:hover {
     &::-webkit-scrollbar-thumb {
-      background: #bfbfbf;
+      background: #b9c9a7;
     }
     &::-webkit-scrollbar-thumb:hover {
-      background: var(--primary-color);
+      background: #7a9a4f;
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <n-layout has-sider wh-full>
+  <n-layout has-sider wh-full class="store-layout">
     <n-layout-sider
       bordered
       collapse-mode="width"
@@ -12,17 +12,13 @@
     </n-layout-sider>
 
     <article flex-col flex-1 overflow-hidden>
-      <header
-        class="flex items-center border-b bg-white px-15 bc-eee"
-        dark="bg-dark border-0"
-        :style="`height: ${header.height}px`"
-      >
+      <header class="store-layout-header" :style="`height: ${header.height}px`">
         <AppHeader />
       </header>
       <section v-if="tags.visible" hidden border-b bc-eee sm:block dark:border-0>
         <AppTags :style="{ height: `${tags.height}px` }" />
       </section>
-      <section flex-1 overflow-hidden bg-hex-f5f6fb dark:bg-hex-101014>
+      <section class="store-layout-main" flex-1 overflow-hidden>
         <AppMain />
       </section>
     </article>
@@ -72,3 +68,22 @@ watchEffect(() => {
   }
 })
 </script>
+
+<style scoped lang="scss">
+.store-layout :deep(.n-layout-sider) {
+  border-right: 1px solid #dfe8ca;
+  background: #f7fbef;
+}
+
+.store-layout-header {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e3ead2;
+  background: #ffffff;
+  padding: 0 15px;
+}
+
+.store-layout-main {
+  background: #f4f8ed;
+}
+</style>

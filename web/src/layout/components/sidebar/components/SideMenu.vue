@@ -111,13 +111,15 @@ function handleMenuSelect(key, item) {
 .side-menu:not(.n-menu--collapsed) {
   .n-menu-item-content {
     &::before {
-      left: 5px;
-      right: 5px;
+      left: 8px;
+      right: 8px;
+      border-radius: 8px;
     }
     &.n-menu-item-content--selected,
     &:hover {
       &::before {
-        border-left: 4px solid var(--primary-color);
+        border-left: 3px solid var(--primary-color);
+        background: #edf5df;
       }
     }
   }
