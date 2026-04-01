@@ -16,18 +16,24 @@ const appStore = useAppStore()
 
 <style scoped lang="scss">
 .store-side-logo {
-  height: 60px;
+  height: 50px;
   margin: 8px;
-  border-radius: 10px;
+  border-radius: 5px;
   background: #eef5e2;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: 0 8px;
+}
+
+.store-side-logo svg {
+  width: 50%;
+  height: 50%;
 }
 
 .store-side-logo-title {
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-left: 4px;
+  margin-right: 36px;
   max-width: 150px;
   flex-shrink: 0;
   color: #3f6e2a;

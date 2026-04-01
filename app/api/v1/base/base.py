@@ -1,6 +1,8 @@
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 
 from app.controllers.user import user_controller
 from app.core.ctx import CTX_USER_ID
@@ -14,6 +16,8 @@ from app.utils.jwt_utils import create_access_token
 from app.utils.password import get_password_hash, verify_password
 
 router = APIRouter()
+AVATAR_DIR = Path(settings.BASE_DIR) / "static" / "avatars"
+DEFAULT_AVATAR_FILE = "admin.jpg"
 
 
 @router.post("/access_token", summary="获取token")
@@ -42,8 +46,19 @@ async def get_userinfo():
     user_id = CTX_USER_ID.get()
     user_obj = await user_controller.get(id=user_id)
     data = await user_obj.to_dict(exclude_fields=["password"])
-    data["avatar"] = "https://avatars.githubusercontent.com/u/54677442?v=4"
+    data["avatar"] = f"/api/v1/base/avatar/{DEFAULT_AVATAR_FILE}"
     return Success(data=data)
+
+
+@router.get("/avatar/{file_name}", summary="获取本地头像")
+async def get_local_avatar(file_name: str):
+    safe_name = Path(file_name).name
+    if safe_name != file_name:
+        raise HTTPException(status_code=400, detail="invalid avatar file name")
+    file_path = AVATAR_DIR / safe_name
+    if not file_path.exists() or not file_path.is_file():
+        raise HTTPException(status_code=404, detail="avatar file not found")
+    return FileResponse(path=file_path, filename=safe_name)
 
 
 @router.get("/usermenu", summary="查看用户菜单", dependencies=[DependAuth])

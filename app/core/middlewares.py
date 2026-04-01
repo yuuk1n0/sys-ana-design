@@ -82,6 +82,10 @@ class HttpAuditLogMiddleware(BaseHTTPMiddleware):
         return args
 
     async def get_response_body(self, request: Request, response: Response) -> Any:
+        content_type = response.headers.get("content-type", "").lower()
+        if content_type.startswith("image/") or "application/octet-stream" in content_type:
+            return {"code": 0, "msg": "Binary response omitted", "data": None}
+
         # 检查Content-Length
         content_length = response.headers.get("content-length")
         if content_length and int(content_length) > self.max_body_size:
@@ -115,7 +119,12 @@ class HttpAuditLogMiddleware(BaseHTTPMiddleware):
         return self.lenient_json(body)
 
     def lenient_json(self, v: Any) -> Any:
-        if isinstance(v, (str, bytes)):
+        if isinstance(v, bytes):
+            try:
+                v = v.decode("utf-8")
+            except UnicodeDecodeError:
+                return {"code": 0, "msg": "Binary response omitted", "data": None}
+        if isinstance(v, str):
             try:
                 return json.loads(v)
             except (ValueError, TypeError):

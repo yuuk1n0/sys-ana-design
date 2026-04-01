@@ -18,12 +18,23 @@
     "workbench": {
       "label_workbench": "Workbench",
       "text_hello": "hello, {username}",
-      "text_welcome": "Today is another day full of energy!",
-      "label_number_of_items": "Number of items",
-      "label_upcoming": "Upcoming",
-      "label_information": "Information",
+      "text_welcome": "Welcome to the supermarket operations center. Here is today's overview.",
+      "label_number_of_items": "Store Count",
+      "label_upcoming": "Pending Purchase/Return Reviews",
+      "label_information": "System Messages",
       "label_project": "Project",
-      "label_more": "More"
+      "label_dashboard": "Supermarket Operations Dashboard",
+      "label_more": "View Details",
+      "label_vs_yesterday": "vs Yesterday",
+      "kpi_today_sales": "Today's Sales",
+      "kpi_yesterday_compare": "Yesterday Comparison",
+      "kpi_gross_margin": "Gross Margin",
+      "kpi_inventory_alert": "Inventory Alerts",
+      "kpi_hot_goods_top5": "Top 5 Hot Products",
+      "label_sales_trend_7d": "Sales Trend (Last 7 Days)",
+      "label_inventory_distribution": "Inventory Distribution Pie",
+      "label_store_sales_ranking": "Store Realtime Sales Ranking",
+      "text_placeholder_data": "These are placeholder metrics and will be connected to order, inventory, and store modules later."
     },
     "profile": {
       "label_profile": "Profile",

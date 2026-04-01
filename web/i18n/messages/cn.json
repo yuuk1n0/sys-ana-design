@@ -18,12 +18,23 @@
     "workbench": {
       "label_workbench": "工作台",
       "text_hello": "hello, {username}",
-      "text_welcome": "今天又是元气满满的一天!",
-      "label_number_of_items": "项目数",
-      "label_upcoming": "待办",
-      "label_information": "消息",
+      "text_welcome": "欢迎来到超市运营中心，以下为今日经营概览。",
+      "label_number_of_items": "门店数",
+      "label_upcoming": "待审核采购/退货单",
+      "label_information": "系统消息",
       "label_project": "项目",
-      "label_more": "更多"
+      "label_dashboard": "超市运营看板",
+      "label_more": "查看详情",
+      "label_vs_yesterday": "较昨日",
+      "kpi_today_sales": "今日销售额",
+      "kpi_yesterday_compare": "昨日对比",
+      "kpi_gross_margin": "毛利率",
+      "kpi_inventory_alert": "库存预警数量",
+      "kpi_hot_goods_top5": "热门商品 Top5",
+      "label_sales_trend_7d": "销售趋势图（近7天）",
+      "label_inventory_distribution": "库存分布饼图",
+      "label_store_sales_ranking": "门店实时销售排行",
+      "text_placeholder_data": "以上为占位数据，后续将对接订单、库存与门店模块实时更新。"
     },
     "profile": {
       "label_profile": "个人中心",
