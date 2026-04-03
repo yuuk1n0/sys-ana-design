@@ -34,7 +34,7 @@
       "label_sales_trend_7d": "销售趋势图（近7天）",
       "label_inventory_distribution": "库存分布饼图",
       "label_store_sales_ranking": "门店实时销售排行",
-      "text_placeholder_data": "以上为占位数据，后续将对接订单、库存与门店模块实时更新。"
+      "text_placeholder_data": "数据仅供参考，没有真实性"
     },
     "profile": {
       "label_profile": "个人中心",

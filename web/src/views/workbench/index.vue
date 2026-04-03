@@ -232,11 +232,11 @@ const inventoryPieStyle = computed(() => {
 })
 
 const storeRankingData = ref([
-  { store: '解放路店', amount: '¥32,840', percent: 100 },
-  { store: '春熙店', amount: '¥29,310', percent: 89 },
-  { store: '高新店', amount: '¥25,460', percent: 78 },
-  { store: '西湖店', amount: '¥20,990', percent: 64 },
-  { store: '滨江店', amount: '¥18,720', percent: 57 },
+  { store: '汉阳店', amount: '¥32,840', percent: 100 },
+  { store: '汉口店', amount: '¥29,310', percent: 89 },
+  { store: '武昌店', amount: '¥25,460', percent: 78 },
+  { store: '关谷店', amount: '¥20,990', percent: 64 },
+  { store: '蔡甸店', amount: '¥18,720', percent: 57 },
 ])
 
 const hotGoodsTop5 = ref([

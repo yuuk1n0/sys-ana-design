@@ -57,4 +57,7 @@ export default {
   getInventoryBalanceList: (params = {}) => request.get('/inventory/balance/list', { params }),
   getInventoryTxnList: (params = {}) => request.get('/inventory/txn/list', { params }),
   getInventoryWarningList: (params = {}) => request.get('/inventory/warning/list', { params }),
+  // finance
+  getFinanceOverview: (params = {}) => request.get('/finance/overview', { params }),
+  getFinanceStatementList: (params = {}) => request.get('/finance/statement/list', { params }),
 }

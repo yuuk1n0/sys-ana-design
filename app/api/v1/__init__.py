@@ -6,6 +6,7 @@ from .apis import apis_router
 from .auditlog import auditlog_router
 from .base import base_router
 from .depts import depts_router
+from .finances import finances_router
 from .inventories import inventories_router
 from .menus import menus_router
 from .product_categories import product_categories_router
@@ -25,3 +26,4 @@ v1_router.include_router(auditlog_router, prefix="/auditlog", dependencies=[Depe
 v1_router.include_router(product_categories_router, prefix="/product-category", dependencies=[DependPermission])
 v1_router.include_router(products_router, prefix="/product", dependencies=[DependPermission])
 v1_router.include_router(inventories_router, prefix="/inventory", dependencies=[DependPermission])
+v1_router.include_router(finances_router, prefix="/finance", dependencies=[DependPermission])

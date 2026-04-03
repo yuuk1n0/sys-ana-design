@@ -314,7 +314,7 @@ async def ensure_role_permissions():
     user_role = await Role.filter(name="普通用户").first()
     if user_role:
         basic_apis = await Api.filter(Q(method__in=["GET"]) | Q(tags="基础模块"))
-        store_apis = await Api.filter(tags__in=["商品模块", "商品分类模块", "库存模块"])
+        store_apis = await Api.filter(tags__in=["商品模块", "商品分类模块", "库存模块", "财务模块"])
         origin_apis = await user_role.apis
         merge_apis = list({api.id: api for api in (list(origin_apis) + list(basic_apis) + list(store_apis))}.values())
         await user_role.apis.clear()
