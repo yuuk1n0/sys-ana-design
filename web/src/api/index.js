@@ -60,4 +60,22 @@ export default {
   // finance
   getFinanceOverview: (params = {}) => request.get('/finance/overview', { params }),
   getFinanceStatementList: (params = {}) => request.get('/finance/statement/list', { params }),
+  // members
+  getMemberList: (params = {}) => request.get('/member/list', { params }),
+  getMemberById: (params = {}) => request.get('/member/get', { params }),
+  createMember: (data = {}, params = {}) => request.post('/member/create', data, { params }),
+  updateMember: (data = {}, params = {}) => request.post('/member/update', data, { params }),
+  deleteMember: (params = {}) => request.delete('/member/delete', { params }),
+  // store employees
+  getStoreEmployeeList: (params = {}) => request.get('/store-employee/list', { params }),
+  getStoreEmployeeById: (params = {}) => request.get('/store-employee/get', { params }),
+  createStoreEmployee: (data = {}, params = {}) => request.post('/store-employee/create', data, { params }),
+  updateStoreEmployee: (data = {}, params = {}) => request.post('/store-employee/update', data, { params }),
+  deleteStoreEmployee: (params = {}) => request.delete('/store-employee/delete', { params }),
+  // suppliers
+  getSupplierList: (params = {}) => request.get('/supplier/list', { params }),
+  getSupplierById: (params = {}) => request.get('/supplier/get', { params }),
+  createSupplier: (data = {}, params = {}) => request.post('/supplier/create', data, { params }),
+  updateSupplier: (data = {}, params = {}) => request.post('/supplier/update', data, { params }),
+  deleteSupplier: (params = {}) => request.delete('/supplier/delete', { params }),
 }

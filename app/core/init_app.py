@@ -1,4 +1,3 @@
-import shutil
 
 from aerich import Command
 from fastapi import FastAPI
@@ -21,7 +20,6 @@ from app.core.exceptions import (
     ResponseValidationError,
     ResponseValidationHandle,
 )
-from app.log import logger
 from app.models.admin import Api, Menu, Role
 from app.schemas.menus import MenuType
 from app.settings.config import settings
@@ -228,6 +226,27 @@ async def ensure_store_menus():
             icon="material-symbols:warning-outline",
             component="/store/inventory-warning",
         ),
+        dict(
+            name="会员管理",
+            path="member",
+            order=6,
+            icon="material-symbols:card-membership-outline",
+            component="/store/member",
+        ),
+        dict(
+            name="门店员工",
+            path="store-employee",
+            order=7,
+            icon="material-symbols:badge-outline",
+            component="/store/store-employee",
+        ),
+        dict(
+            name="供应商管理",
+            path="supplier",
+            order=8,
+            icon="material-symbols:local-shipping-outline",
+            component="/store/supplier",
+        ),
     ]
     for item in children:
         exists = await Menu.filter(path=item["path"], parent_id=store_parent.id).exists()
@@ -255,19 +274,7 @@ async def init_apis():
 
 async def init_db():
     command = Command(tortoise_config=settings.TORTOISE_ORM)
-    try:
-        await command.init_db(safe=True)
-    except FileExistsError:
-        pass
-
     await command.init()
-    try:
-        await command.migrate()
-    except AttributeError:
-        logger.warning("unable to retrieve model history from database, model history will be created from scratch")
-        shutil.rmtree("migrations")
-        await command.init_db(safe=True)
-
     await command.upgrade(run_in_transaction=True)
 
 
@@ -314,7 +321,9 @@ async def ensure_role_permissions():
     user_role = await Role.filter(name="普通用户").first()
     if user_role:
         basic_apis = await Api.filter(Q(method__in=["GET"]) | Q(tags="基础模块"))
-        store_apis = await Api.filter(tags__in=["商品模块", "商品分类模块", "库存模块", "财务模块"])
+        store_apis = await Api.filter(
+            tags__in=["商品模块", "商品分类模块", "库存模块", "财务模块", "会员模块", "门店员工模块", "供应商模块"]
+        )
         origin_apis = await user_role.apis
         merge_apis = list({api.id: api for api in (list(origin_apis) + list(basic_apis) + list(store_apis))}.values())
         await user_role.apis.clear()

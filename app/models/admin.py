@@ -149,3 +149,52 @@ class InventoryTxn(BaseModel, TimestampMixin):
     class Meta:
         table = "inventory_txn"
         indexes = (("store_id", "created_at"), ("store_id", "product_id", "created_at"))
+
+
+class Member(BaseModel, TimestampMixin):
+    store_id = fields.IntField(description="门店ID", index=True)
+    member_no = fields.CharField(max_length=32, description="会员编号", index=True)
+    name = fields.CharField(max_length=64, description="会员姓名", index=True)
+    phone = fields.CharField(max_length=20, null=True, description="手机号", index=True)
+    level = fields.CharField(max_length=32, default="NORMAL", description="会员等级", index=True)
+    points = fields.IntField(default=0, description="积分", index=True)
+    status = fields.BooleanField(default=True, description="状态", index=True)
+    remark = fields.CharField(max_length=255, null=True, description="备注")
+
+    class Meta:
+        table = "member"
+        unique_together = (("store_id", "member_no"),)
+        indexes = (("store_id", "status"), ("store_id", "level"))
+
+
+class StoreEmployee(BaseModel, TimestampMixin):
+    store_id = fields.IntField(description="门店ID", index=True)
+    employee_no = fields.CharField(max_length=32, description="员工工号", index=True)
+    name = fields.CharField(max_length=64, description="员工姓名", index=True)
+    phone = fields.CharField(max_length=20, null=True, description="手机号", index=True)
+    job_title = fields.CharField(max_length=64, description="岗位", index=True)
+    hire_date = fields.DateField(null=True, description="入职日期")
+    status = fields.BooleanField(default=True, description="状态", index=True)
+    remark = fields.CharField(max_length=255, null=True, description="备注")
+
+    class Meta:
+        table = "store_employee"
+        unique_together = (("store_id", "employee_no"),)
+        indexes = (("store_id", "status"), ("store_id", "job_title"))
+
+
+class Supplier(BaseModel, TimestampMixin):
+    store_id = fields.IntField(description="门店ID", index=True)
+    supplier_code = fields.CharField(max_length=32, description="供应商编码", index=True)
+    supplier_name = fields.CharField(max_length=128, description="供应商名称", index=True)
+    contact_name = fields.CharField(max_length=64, null=True, description="联系人")
+    phone = fields.CharField(max_length=20, null=True, description="联系电话", index=True)
+    settlement_cycle = fields.IntField(default=30, description="结算周期(天)")
+    status = fields.BooleanField(default=True, description="状态", index=True)
+    address = fields.CharField(max_length=255, null=True, description="地址")
+    remark = fields.CharField(max_length=255, null=True, description="备注")
+
+    class Meta:
+        table = "supplier"
+        unique_together = (("store_id", "supplier_code"),)
+        indexes = (("store_id", "status"), ("store_id", "supplier_name"))
