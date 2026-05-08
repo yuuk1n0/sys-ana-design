@@ -29,7 +29,7 @@
           <n-button text type="primary">{{ $t('views.workbench.label_more') }}</n-button>
         </template>
 
-        <n-grid cols="1 s:2 m:4" :x-gap="12" :y-gap="12">
+        <n-grid cols="4" :x-gap="12" :y-gap="12">
           <n-gi v-for="item in kpiData" :key="item.id">
             <n-card size="small" hoverable>
               <div text-13 op-70>{{ item.label }}</div>
@@ -39,75 +39,34 @@
           </n-gi>
         </n-grid>
 
-        <n-grid mt-15 cols="1 l:3" :x-gap="12" :y-gap="12">
+        <n-grid mt-15 cols="1 l:2" :x-gap="12" :y-gap="12">
           <n-gi>
             <n-card size="small" :title="$t('views.workbench.label_sales_trend_7d')">
-              <svg viewBox="0 0 360 180" class="w-full">
-                <polyline
-                  :points="trendPolyline"
-                  fill="none"
-                  stroke="#2080f0"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <circle
-                  v-for="point in trendPoints"
-                  :key="point.day"
-                  :cx="point.x"
-                  :cy="point.y"
-                  r="4"
-                  fill="#2080f0"
-                />
-              </svg>
-              <div mt-8 flex justify-between text-12 op-70>
-                <span v-for="item in salesTrendData" :key="item.day">{{ item.day }}</span>
-              </div>
+              <div ref="salesTrendRef" class="chart-container"></div>
             </n-card>
           </n-gi>
 
           <n-gi>
             <n-card size="small" :title="$t('views.workbench.label_inventory_distribution')">
-              <div flex items-center justify-center py-10>
-                <div class="inventory-pie" :style="inventoryPieStyle"></div>
-              </div>
-              <div mt-10>
-                <div
-                  v-for="item in inventoryDistributionData"
-                  :key="item.label"
-                  mb-8
-                  flex
-                  items-center
-                  justify-between
-                  text-13
-                >
-                  <div flex items-center>
-                    <span class="legend-dot" :style="{ backgroundColor: item.color }"></span>
-                    <span>{{ item.label }}</span>
-                  </div>
-                  <span font-medium>{{ item.value }}%</span>
-                </div>
-              </div>
-            </n-card>
-          </n-gi>
-
-          <n-gi>
-            <n-card size="small" :title="$t('views.workbench.label_store_sales_ranking')">
-              <div v-for="(item, index) in storeRankingData" :key="item.store" mb-12>
-                <div mb-4 flex items-center justify-between text-13>
-                  <span>{{ index + 1 }}. {{ item.store }}</span>
-                  <span font-medium>{{ item.amount }}</span>
-                </div>
-                <n-progress
-                  type="line"
-                  :percentage="item.percent"
-                  :show-indicator="false"
-                  :height="8"
-                />
-              </div>
+              <div ref="inventoryPieRef" class="chart-container"></div>
             </n-card>
           </n-gi>
         </n-grid>
+
+        <n-card mt-15 size="small" :title="$t('views.workbench.label_store_sales_ranking')">
+          <div v-for="(item, index) in storeRankingData" :key="item.store" mb-12>
+            <div mb-4 flex items-center justify-between text-13>
+              <span>{{ index + 1 }}. {{ item.store }}</span>
+              <span font-medium>{{ item.amount }}</span>
+            </div>
+            <n-progress
+              type="line"
+              :percentage="item.percent"
+              :show-indicator="false"
+              :height="8"
+            />
+          </div>
+        </n-card>
 
         <n-card mt-15 size="small" :title="$t('views.workbench.kpi_hot_goods_top5')">
           <div
@@ -135,6 +94,7 @@
 </template>
 
 <script setup>
+import * as echarts from 'echarts'
 import { useUserStore } from '@/store'
 import { useI18n } from 'vue-i18n'
 
@@ -199,37 +159,12 @@ const salesTrendData = ref([
   { day: 'Sun', value: 119 },
 ])
 
-const maxTrendValue = computed(() => Math.max(...salesTrendData.value.map((item) => item.value)))
-
-const trendPoints = computed(() =>
-  salesTrendData.value.map((item, index) => ({
-    day: item.day,
-    x: 24 + index * 52,
-    y: 156 - (item.value / maxTrendValue.value) * 110,
-  }))
-)
-
-const trendPolyline = computed(() =>
-  trendPoints.value.map((item) => `${item.x},${item.y}`).join(' ')
-)
-
 const inventoryDistributionData = ref([
   { label: '生鲜', value: 42, color: '#18a058' },
   { label: '日配', value: 32, color: '#2080f0' },
   { label: '粮油', value: 17, color: '#f0a020' },
   { label: '其他', value: 9, color: '#d03050' },
 ])
-
-const inventoryPieStyle = computed(() => {
-  let start = 0
-  const segments = inventoryDistributionData.value.map((item) => {
-    const end = start + item.value
-    const segment = `${item.color} ${start}% ${end}%`
-    start = end
-    return segment
-  })
-  return { background: `conic-gradient(${segments.join(', ')})` }
-})
 
 const storeRankingData = ref([
   { store: '汉阳店', amount: '¥32,840', percent: 100 },
@@ -247,21 +182,118 @@ const hotGoodsTop5 = ref([
   { name: '冰鲜三文鱼切片 250g', sales: '1,350 件', stock: '库存 120 件' },
 ])
 
+const salesTrendRef = ref()
+const inventoryPieRef = ref()
+let salesTrendChart = null
+let inventoryPieChart = null
+
+function getSalesTrendOption() {
+  return {
+    tooltip: { trigger: 'axis' },
+    grid: { top: 30, right: 18, bottom: 20, left: 36 },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: salesTrendData.value.map((item) => item.day),
+    },
+    yAxis: {
+      type: 'value',
+      splitLine: { lineStyle: { color: '#e8eef6' } },
+    },
+    series: [
+      {
+        type: 'line',
+        smooth: true,
+        showSymbol: true,
+        symbolSize: 8,
+        lineStyle: { width: 3, color: '#2080f0' },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(32,128,240,0.25)' },
+            { offset: 1, color: 'rgba(32,128,240,0.04)' },
+          ]),
+        },
+        data: salesTrendData.value.map((item) => item.value),
+      },
+    ],
+  }
+}
+
+function getInventoryPieOption() {
+  return {
+    tooltip: { trigger: 'item', formatter: '{b}: {d}%' },
+    legend: { bottom: 0, left: 'center' },
+    series: [
+      {
+        type: 'pie',
+        radius: ['45%', '72%'],
+        center: ['50%', '45%'],
+        label: { formatter: '{d}%' },
+        labelLine: { length: 12, length2: 10 },
+        data: inventoryDistributionData.value.map((item) => ({
+          name: item.label,
+          value: item.value,
+          itemStyle: { color: item.color },
+        })),
+      },
+    ],
+  }
+}
+
+function initCharts() {
+  if (salesTrendRef.value) {
+    salesTrendChart?.dispose()
+    salesTrendChart = echarts.init(salesTrendRef.value)
+    salesTrendChart.setOption(getSalesTrendOption())
+  }
+  if (inventoryPieRef.value) {
+    inventoryPieChart?.dispose()
+    inventoryPieChart = echarts.init(inventoryPieRef.value)
+    inventoryPieChart.setOption(getInventoryPieOption())
+  }
+}
+
+function resizeCharts() {
+  salesTrendChart?.resize()
+  inventoryPieChart?.resize()
+}
+
+onMounted(() => {
+  nextTick(initCharts)
+  window.addEventListener('resize', resizeCharts)
+})
+
+watch(
+  salesTrendData,
+  () => {
+    salesTrendChart?.setOption(getSalesTrendOption())
+  },
+  { deep: true }
+)
+
+watch(
+  inventoryDistributionData,
+  () => {
+    inventoryPieChart?.setOption(getInventoryPieOption())
+  },
+  { deep: true }
+)
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', resizeCharts)
+  salesTrendChart?.dispose()
+  inventoryPieChart?.dispose()
+  salesTrendChart = null
+  inventoryPieChart = null
+})
+
 const userStore = useUserStore()
 </script>
 
 <style scoped>
-.inventory-pie {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-}
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 8px;
+.chart-container {
+  width: 100%;
+  height: 260px;
 }
 
 .hot-item {
