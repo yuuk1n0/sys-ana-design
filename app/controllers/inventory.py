@@ -1,10 +1,14 @@
+import json
+from datetime import datetime
 from typing import Optional
 
+from fastapi import HTTPException
 from tortoise.expressions import Q
+from tortoise.transactions import atomic
 
 from app.core.crud import CRUDBase
 from app.models.admin import InventoryTxn, Product, StoreInventory
-from app.schemas.inventories import InventoryInitTxnCreate
+from app.schemas.inventories import InventoryInitTxnCreate, InventoryOperateCreate
 
 
 class InventoryController(CRUDBase[StoreInventory, dict, dict]):
@@ -39,6 +43,106 @@ class InventoryController(CRUDBase[StoreInventory, dict, dict]):
 
     async def create_init_txn(self, store_id: int, obj_in: InventoryInitTxnCreate):
         await InventoryTxn.create(store_id=store_id, **obj_in.model_dump())
+
+    def build_txn_remark(self, data: dict | None = None) -> str | None:
+        if not data:
+            return None
+        return json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+
+    def parse_txn_remark(self, remark: str | None) -> dict:
+        if not remark:
+            return {}
+        try:
+            data = json.loads(remark)
+            return data if isinstance(data, dict) else {"text": remark}
+        except (TypeError, ValueError):
+            return {"text": remark}
+
+    def generate_biz_no(self, prefix: str) -> str:
+        return f"{prefix}-{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
+
+    async def _get_inventory_or_raise(self, store_id: int, product_obj: Product, operator_id: int):
+        inventory_obj = await self.get_by_store_product(store_id=store_id, product_id=product_obj.id)
+        if inventory_obj:
+            return inventory_obj
+        return await self.create_or_update_inventory(
+            store_id=store_id,
+            product_id=product_obj.id,
+            low_stock_threshold=product_obj.low_stock_threshold,
+            operator_id=operator_id,
+        )
+
+    async def apply_inventory_change(
+        self,
+        *,
+        store_id: int,
+        operator_id: int,
+        biz_type: str,
+        biz_no: str,
+        product_obj: Product,
+        qty: int,
+        remark_meta: dict | None = None,
+    ):
+        inventory_obj = await self._get_inventory_or_raise(store_id=store_id, product_obj=product_obj, operator_id=operator_id)
+        before_qty = inventory_obj.available_qty
+        after_qty = before_qty + qty
+        if after_qty < 0:
+            raise HTTPException(status_code=400, detail=f"商品 {product_obj.name} 库存不足")
+
+        inventory_obj.available_qty = after_qty
+        inventory_obj.updated_by = operator_id
+        inventory_obj.version += 1
+        await inventory_obj.save()
+
+        product_obj.stock_status = after_qty > 0
+        await product_obj.save()
+
+        txn_obj = await InventoryTxn.create(
+            store_id=store_id,
+            product_id=product_obj.id,
+            biz_type=biz_type,
+            biz_no=biz_no,
+            change_qty=qty,
+            before_qty=before_qty,
+            after_qty=after_qty,
+            remark=self.build_txn_remark(remark_meta),
+            operator_id=operator_id,
+        )
+        return txn_obj
+
+    @atomic("mysql")
+    async def create_inventory_operation(self, *, store_id: int, operator_id: int, obj_in: InventoryOperateCreate):
+        biz_type = obj_in.biz_type.upper()
+        if biz_type not in {"STOCK_IN", "STOCK_OUT"}:
+            raise HTTPException(status_code=400, detail="仅支持入库或出库作业")
+
+        biz_no = self.generate_biz_no("IN" if biz_type == "STOCK_IN" else "OUT")
+        product_ids = [item.product_id for item in obj_in.items]
+        product_objs = await Product.filter(store_id=store_id, id__in=product_ids).all()
+        product_map = {item.id: item for item in product_objs}
+
+        total_qty = 0
+        for line in obj_in.items:
+            product_obj = product_map.get(line.product_id)
+            if not product_obj:
+                raise HTTPException(status_code=404, detail=f"商品 {line.product_id} 不存在")
+
+            delta_qty = line.qty if biz_type == "STOCK_IN" else -line.qty
+            total_qty += line.qty
+            await self.apply_inventory_change(
+                store_id=store_id,
+                operator_id=operator_id,
+                biz_type=biz_type,
+                biz_no=biz_no,
+                product_obj=product_obj,
+                qty=delta_qty,
+                remark_meta={
+                    "remark": obj_in.remark,
+                    "qty": line.qty,
+                },
+            )
+
+        return {"biz_no": biz_no, "biz_type": biz_type, "total_qty": total_qty, "item_count": len(obj_in.items)}
 
     async def get_balance_data(
         self,
@@ -132,6 +236,7 @@ class InventoryController(CRUDBase[StoreInventory, dict, dict]):
             product_obj = product_map.get(item.product_id)
             row["product_name"] = product_obj.name if product_obj else ""
             row["product_code"] = product_obj.product_code if product_obj else ""
+            row["remark_meta"] = self.parse_txn_remark(item.remark)
             rows.append(row)
         return total, rows
 

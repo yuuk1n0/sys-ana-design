@@ -12,6 +12,7 @@ from .menus import menus_router
 from .product_categories import product_categories_router
 from .products import products_router
 from .roles import roles_router
+from .sales import sales_router
 from .members import members_router
 from .store_employees import store_employees_router
 from .suppliers import suppliers_router
@@ -30,6 +31,7 @@ v1_router.include_router(product_categories_router, prefix="/product-category", 
 v1_router.include_router(products_router, prefix="/product", dependencies=[DependPermission])
 v1_router.include_router(inventories_router, prefix="/inventory", dependencies=[DependPermission])
 v1_router.include_router(finances_router, prefix="/finance", dependencies=[DependPermission])
+v1_router.include_router(sales_router, prefix="/sale", dependencies=[DependPermission])
 v1_router.include_router(members_router, prefix="/member", dependencies=[DependPermission])
 v1_router.include_router(store_employees_router, prefix="/store-employee", dependencies=[DependPermission])
 v1_router.include_router(suppliers_router, prefix="/supplier", dependencies=[DependPermission])

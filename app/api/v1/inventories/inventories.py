@@ -7,7 +7,8 @@ from app.controllers.inventory import inventory_controller
 from app.controllers.user import user_controller
 from app.core.ctx import CTX_USER_ID
 from app.models.admin import Dept
-from app.schemas import SuccessExtra
+from app.schemas import Success, SuccessExtra
+from app.schemas.inventories import InventoryOperateCreate
 
 router = APIRouter()
 
@@ -89,3 +90,18 @@ async def get_inventory_warning_list(
         page_size=page_size,
     )
     return SuccessExtra(data=data, total=total, page=page, page_size=page_size)
+
+
+@router.post("/operate", summary="提交库存作业")
+async def create_inventory_operation(
+    req_in: InventoryOperateCreate,
+    store_id: int | None = Query(None, description="门店ID"),
+):
+    user_id = CTX_USER_ID.get()
+    current_store_id = await get_current_store_id(store_id)
+    data = await inventory_controller.create_inventory_operation(
+        store_id=current_store_id,
+        operator_id=user_id,
+        obj_in=req_in,
+    )
+    return Success(data=data, msg="Created Successfully")

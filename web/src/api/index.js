@@ -57,9 +57,15 @@ export default {
   getInventoryBalanceList: (params = {}) => request.get('/inventory/balance/list', { params }),
   getInventoryTxnList: (params = {}) => request.get('/inventory/txn/list', { params }),
   getInventoryWarningList: (params = {}) => request.get('/inventory/warning/list', { params }),
+  createInventoryOperation: (data = {}, params = {}) => request.post('/inventory/operate', data, { params }),
   // finance
   getFinanceOverview: (params = {}) => request.get('/finance/overview', { params }),
   getFinanceStatementList: (params = {}) => request.get('/finance/statement/list', { params }),
+  // sales
+  getSalesOrderList: (params = {}) => request.get('/sale/order/list', { params }),
+  getSalesOrderDetail: (params = {}) => request.get('/sale/order/get', { params }),
+  submitSaleOrder: (data = {}, params = {}) => request.post('/sale/submit', data, { params }),
+  submitReturnOrder: (data = {}, params = {}) => request.post('/sale/return', data, { params }),
   // members
   getMemberList: (params = {}) => request.get('/member/list', { params }),
   getMemberById: (params = {}) => request.get('/member/get', { params }),

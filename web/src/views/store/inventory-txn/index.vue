@@ -1,10 +1,21 @@
 <script setup>
-import { NDatePicker, NInput, NSelect, NTag } from 'naive-ui'
+import {
+  NButton,
+  NDatePicker,
+  NForm,
+  NFormItem,
+  NInput,
+  NInputNumber,
+  NSelect,
+  NTag,
+} from 'naive-ui'
 import { computed, h, onMounted, ref } from 'vue'
 
 import CommonPage from '@/components/page/CommonPage.vue'
+import CrudModal from '@/components/table/CrudModal.vue'
 import QueryBarItem from '@/components/query-bar/QueryBarItem.vue'
 import CrudTable from '@/components/table/CrudTable.vue'
+import TheIcon from '@/components/icon/TheIcon.vue'
 import api from '@/api'
 
 defineOptions({ name: '库存流水' })
@@ -13,13 +24,42 @@ const $table = ref(null)
 const queryItems = ref({})
 const datetimeRange = ref(null)
 const tableRows = ref([])
+const operateModalVisible = ref(false)
+const operateSaving = ref(false)
+const operateType = ref('STOCK_IN')
+const operateFormRef = ref(null)
+const productOptions = ref([])
+const operateForm = ref({
+  remark: '',
+  items: [{ product_id: null, qty: 1 }],
+})
 
-onMounted(() => {
+const operateRules = {
+  items: {
+    validator: () => {
+      const items = operateForm.value.items || []
+      if (!items.length) {
+        return new Error('请至少添加一条作业明细')
+      }
+      const invalid = items.some((item) => !item.product_id || !Number(item.qty))
+      if (invalid) {
+        return new Error('请完整填写商品和数量')
+      }
+      return true
+    },
+    trigger: ['change', 'blur'],
+  },
+}
+
+onMounted(async () => {
+  await loadProducts()
   $table.value?.handleSearch()
 })
 
 const bizTypeOptions = [
   { label: '初始化', value: 'INIT' },
+  { label: '采购入库', value: 'STOCK_IN' },
+  { label: '业务出库', value: 'STOCK_OUT' },
   { label: '销售扣减', value: 'SALE' },
   { label: '退货回补', value: 'RETURN' },
   { label: '盘盈', value: 'STOCKTAKE_GAIN' },
@@ -29,6 +69,8 @@ const bizTypeOptions = [
 
 const bizTypeMap = {
   INIT: { label: '初始化', type: 'info' },
+  STOCK_IN: { label: '采购入库', type: 'success' },
+  STOCK_OUT: { label: '业务出库', type: 'error' },
   SALE: { label: '销售扣减', type: 'warning' },
   RETURN: { label: '退货回补', type: 'success' },
   STOCKTAKE_GAIN: { label: '盘盈', type: 'success' },
@@ -58,8 +100,57 @@ function handleDateRangeChange(value) {
   queryItems.value.end_time = formatTimestamp(value[1])
 }
 
+async function loadProducts() {
+  const res = await api.getProductList({ page: 1, page_size: 9999, status: 1 })
+  productOptions.value = (res.data || []).map((item) => ({
+    label: `${item.name} (${item.product_code})`,
+    value: item.id,
+  }))
+}
+
 function handleTableDataChange(rows) {
   tableRows.value = rows || []
+}
+
+function resetOperateForm() {
+  operateForm.value = {
+    remark: '',
+    items: [{ product_id: null, qty: 1 }],
+  }
+}
+
+function openOperateModal(type) {
+  operateType.value = type
+  resetOperateForm()
+  operateModalVisible.value = true
+}
+
+function addOperateItem() {
+  operateForm.value.items.push({ product_id: null, qty: 1 })
+}
+
+function removeOperateItem(index) {
+  if (operateForm.value.items.length === 1) return
+  operateForm.value.items.splice(index, 1)
+}
+
+function submitOperateForm() {
+  operateFormRef.value?.validate(async (errors) => {
+    if (errors) return
+    try {
+      operateSaving.value = true
+      await api.createInventoryOperation({
+        biz_type: operateType.value,
+        remark: operateForm.value.remark,
+        items: operateForm.value.items,
+      })
+      $message.success(operateType.value === 'STOCK_IN' ? '入库登记成功' : '出库登记成功')
+      operateModalVisible.value = false
+      $table.value?.handleSearch()
+    } finally {
+      operateSaving.value = false
+    }
+  })
 }
 
 const summaryCards = computed(() => {
@@ -116,6 +207,16 @@ const columns = [
 
 <template>
   <CommonPage show-footer title="库存流水">
+    <template #action>
+      <div class="inventory-actions">
+        <NButton v-permission="'post/api/v1/inventory/operate'" type="primary" @click="openOperateModal('STOCK_IN')">
+          <TheIcon icon="material-symbols:add-box-outline" :size="18" class="mr-5" />入库登记
+        </NButton>
+        <NButton v-permission="'post/api/v1/inventory/operate'" type="warning" ghost @click="openOperateModal('STOCK_OUT')">
+          <TheIcon icon="material-symbols:outbox-outline" :size="18" class="mr-5" />出库登记
+        </NButton>
+      </div>
+    </template>
     <section class="store-summary">
       <div
         v-for="item in summaryCards"
@@ -162,10 +263,58 @@ const columns = [
         </QueryBarItem>
       </template>
     </CrudTable>
+
+    <CrudModal
+      v-model:visible="operateModalVisible"
+      :title="operateType === 'STOCK_IN' ? '入库登记' : '出库登记'"
+      :loading="operateSaving"
+      width="860px"
+      @save="submitOperateForm"
+    >
+      <NForm
+        ref="operateFormRef"
+        :model="operateForm"
+        :rules="operateRules"
+        label-placement="left"
+        :label-width="90"
+      >
+        <NFormItem label="备注" path="remark">
+          <NInput v-model:value="operateForm.remark" type="textarea" placeholder="请输入备注(可选)" />
+        </NFormItem>
+        <NFormItem label="作业明细" path="items">
+          <div class="operate-lines">
+            <div
+              v-for="(item, index) in operateForm.items"
+              :key="index"
+              class="operate-line"
+            >
+              <NSelect
+                v-model:value="item.product_id"
+                :options="productOptions"
+                filterable
+                placeholder="请选择商品"
+              />
+              <NInputNumber v-model:value="item.qty" :min="1" placeholder="数量" />
+              <NButton quaternary type="error" :disabled="operateForm.items.length === 1" @click="removeOperateItem(index)">
+                删除
+              </NButton>
+            </div>
+            <NButton dashed type="primary" @click="addOperateItem">
+              <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />添加商品
+            </NButton>
+          </div>
+        </NFormItem>
+      </NForm>
+    </CrudModal>
   </CommonPage>
 </template>
 
 <style scoped lang="scss">
+.inventory-actions {
+  display: flex;
+  gap: 12px;
+}
+
 .store-summary {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -205,5 +354,20 @@ const columns = [
 .store-summary-item.success {
   background: #f2fbf5;
   border-color: #deefe3;
+}
+
+.operate-lines {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.operate-line {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px 80px;
+  gap: 10px;
+  align-items: center;
 }
 </style>

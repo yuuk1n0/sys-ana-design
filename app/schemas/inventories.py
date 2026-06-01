@@ -20,3 +20,14 @@ class InventoryTxnQuery(BaseModel):
     biz_type: Optional[str] = None
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
+
+
+class InventoryOperateItem(BaseModel):
+    product_id: int = Field(..., description="商品ID")
+    qty: int = Field(..., gt=0, description="作业数量")
+
+
+class InventoryOperateCreate(BaseModel):
+    biz_type: str = Field(..., description="业务类型: STOCK_IN/STOCK_OUT")
+    remark: Optional[str] = Field(None, description="备注")
+    items: list[InventoryOperateItem] = Field(..., min_length=1, description="作业明细")

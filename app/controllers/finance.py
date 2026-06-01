@@ -6,6 +6,8 @@ from tortoise.expressions import Q
 
 from app.models.admin import InventoryTxn, Product
 
+from .inventory import inventory_controller
+
 
 class FinanceController:
     async def get_overview(self, store_id: int, start_time: datetime | None = None, end_time: datetime | None = None):
@@ -27,7 +29,8 @@ class FinanceController:
             product = product_map.get(item.product_id)
             if not product:
                 continue
-            price = Decimal(str(product.sale_price))
+            remark_meta = inventory_controller.parse_txn_remark(item.remark)
+            price = Decimal(str(remark_meta.get("unit_price", product.sale_price)))
             if item.biz_type == "SALE":
                 qty = abs(item.change_qty)
                 sale_amount += price * qty
@@ -71,7 +74,8 @@ class FinanceController:
                 continue
             bucket = item.created_at.strftime("%Y-%m-%d")
             grouped[bucket]["date"] = bucket
-            price = Decimal(str(product.sale_price))
+            remark_meta = inventory_controller.parse_txn_remark(item.remark)
+            price = Decimal(str(remark_meta.get("unit_price", product.sale_price)))
             qty = abs(item.change_qty)
             if item.biz_type == "SALE":
                 grouped[bucket]["sale_amount"] += price * qty

@@ -206,44 +206,51 @@ async def ensure_store_menus():
             component="/store/product",
         ),
         dict(
+            name="销售管理",
+            path="sales",
+            order=3,
+            icon="material-symbols:point-of-sale-rounded",
+            component="/store/sales",
+        ),
+        dict(
             name="库存余额",
             path="inventory-balance",
-            order=3,
+            order=4,
             icon="material-symbols:inventory-2",
             component="/store/inventory-balance",
         ),
         dict(
             name="库存流水",
             path="inventory-txn",
-            order=4,
+            order=5,
             icon="material-symbols:receipt-long-outline",
             component="/store/inventory-txn",
         ),
         dict(
             name="库存预警",
             path="inventory-warning",
-            order=5,
+            order=6,
             icon="material-symbols:warning-outline",
             component="/store/inventory-warning",
         ),
         dict(
             name="会员管理",
             path="member",
-            order=6,
+            order=7,
             icon="material-symbols:card-membership-outline",
             component="/store/member",
         ),
         dict(
             name="门店员工",
             path="store-employee",
-            order=7,
+            order=8,
             icon="material-symbols:badge-outline",
             component="/store/store-employee",
         ),
         dict(
             name="供应商管理",
             path="supplier",
-            order=8,
+            order=9,
             icon="material-symbols:local-shipping-outline",
             component="/store/supplier",
         ),
@@ -322,7 +329,7 @@ async def ensure_role_permissions():
     if user_role:
         basic_apis = await Api.filter(Q(method__in=["GET"]) | Q(tags="基础模块"))
         store_apis = await Api.filter(
-            tags__in=["商品模块", "商品分类模块", "库存模块", "财务模块", "会员模块", "门店员工模块", "供应商模块"]
+            tags__in=["商品模块", "商品分类模块", "库存模块", "财务模块", "销售模块", "会员模块", "门店员工模块", "供应商模块"]
         )
         origin_apis = await user_role.apis
         merge_apis = list({api.id: api for api in (list(origin_apis) + list(basic_apis) + list(store_apis))}.values())
