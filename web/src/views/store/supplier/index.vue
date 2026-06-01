@@ -28,6 +28,13 @@ const queryItems = ref({})
 const vPermission = resolveDirective('permission')
 const tableRows = ref([])
 
+const supplierFeatureBoards = [
+  { title: '供应商合同管理', desc: '当前已维护账期、联系人和状态信息，可作为合同台账、结算周期管理的基础。' },
+  { title: '供应商评价管理', desc: '已预留评价展示位，后续可结合交付及时率、质量异常与合作评分扩展。' },
+  { title: '采购订单管理', desc: '可基于供应商与库存预警扩展采购申请、采购订单和到货登记流程。' },
+  { title: '协同补货管理', desc: '供应商与库存预警页联动后，可形成课程设计中的采购补货闭环。' },
+]
+
 const {
   modalVisible,
   modalTitle,
@@ -150,6 +157,12 @@ const columns = [
       >
         <div class="store-summary-label">{{ item.title }}</div>
         <div class="store-summary-value">{{ item.value }}</div>
+      </div>
+    </section>
+    <section class="feature-grid">
+      <div v-for="item in supplierFeatureBoards" :key="item.title" class="feature-card">
+        <div class="feature-title">{{ item.title }}</div>
+        <div class="feature-desc">{{ item.desc }}</div>
       </div>
     </section>
     <template #action>
@@ -280,5 +293,32 @@ const columns = [
 .store-summary-item.danger {
   background: #fff2f0;
   border-color: #f6d9d2;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.feature-card {
+  border-radius: 10px;
+  border: 1px solid #e8eef6;
+  background: #fff;
+  padding: 14px;
+}
+
+.feature-title {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.feature-desc {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.7;
 }
 </style>

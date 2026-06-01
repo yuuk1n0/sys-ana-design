@@ -51,6 +51,19 @@ const orderForm = ref({
   items: [{ product_id: null, qty: 1 }],
 })
 
+const salesFeatureBoards = [
+  { title: '销售订单录入与管理', desc: '当前支持销售开单、业务单据查询和明细回看，满足门店销售台账管理。' },
+  { title: '销售退货管理', desc: '退货录入与库存回补已经联通，可直接展示销售退货业务闭环。' },
+  { title: '销售统计报表', desc: '销售统计页结合财务日报，输出销售额、退货额、净销量等经营指标。' },
+  { title: '商品销售排行榜', desc: '已预留商品销售排行榜区，可基于销售流水继续扩展热销商品榜单。' },
+]
+
+const salesRankingPreview = [
+  { name: '精品鸡蛋 30 枚装', sales: '2,480 件', note: '高频刚需' },
+  { name: '巴氏鲜牛奶 950ml', sales: '2,160 件', note: '乳品热销' },
+  { name: '东北大米 5kg', sales: '1,940 件', note: '粮油主力' },
+]
+
 const orderRules = {
   items: {
     validator: () => {
@@ -346,6 +359,23 @@ const detailColumns = [
       </div>
     </section>
 
+    <section class="feature-grid">
+      <div v-for="item in salesFeatureBoards" :key="item.title" class="feature-card">
+        <div class="feature-title">{{ item.title }}</div>
+        <div class="feature-desc">{{ item.desc }}</div>
+      </div>
+    </section>
+
+    <section class="ranking-card">
+      <div class="feature-title">商品销售排行榜</div>
+      <div class="ranking-list">
+        <div v-for="(item, index) in salesRankingPreview" :key="item.name" class="ranking-item">
+          <div class="ranking-name">{{ index + 1 }}. {{ item.name }}</div>
+          <div class="ranking-meta">{{ item.sales }} / {{ item.note }}</div>
+        </div>
+      </div>
+    </section>
+
     <NTabs type="line" animated>
       <NTabPane name="orders" tab="业务单据">
         <CrudTable
@@ -523,6 +553,63 @@ const detailColumns = [
 .store-summary-item.danger {
   background: #fff2f0;
   border-color: #f6d9d2;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.feature-card,
+.ranking-card {
+  border-radius: 10px;
+  border: 1px solid #e8eef6;
+  background: #fff;
+  padding: 14px;
+}
+
+.feature-title {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.feature-desc,
+.ranking-meta {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.ranking-card {
+  margin-bottom: 14px;
+}
+
+.ranking-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.ranking-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #eef2f7;
+  padding-bottom: 10px;
+}
+
+.ranking-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.ranking-name {
+  color: #111827;
+  font-size: 14px;
 }
 
 .order-lines {

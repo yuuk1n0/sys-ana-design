@@ -192,6 +192,13 @@ async def ensure_store_menus():
         )
     children = [
         dict(
+            name="课程总览",
+            path="course-design",
+            order=0,
+            icon="material-symbols:dashboard-outline-rounded",
+            component="/store/course-design",
+        ),
+        dict(
             name="商品分类",
             path="product-category",
             order=1,
@@ -254,6 +261,20 @@ async def ensure_store_menus():
             icon="material-symbols:local-shipping-outline",
             component="/store/supplier",
         ),
+        dict(
+            name="仓库中心",
+            path="warehouse-center",
+            order=10,
+            icon="material-symbols:warehouse-outline",
+            component="/store/warehouse-center",
+        ),
+        dict(
+            name="财务中心",
+            path="finance-center",
+            order=11,
+            icon="material-symbols:account-balance-wallet-outline",
+            component="/store/finance-center",
+        ),
     ]
     for item in children:
         exists = await Menu.filter(path=item["path"], parent_id=store_parent.id).exists()
@@ -271,6 +292,28 @@ async def ensure_store_menus():
             keepalive=False,
             redirect="",
         )
+    await ensure_system_ops_menu()
+
+
+async def ensure_system_ops_menu():
+    system_parent = await Menu.filter(path="/system", parent_id=0).first()
+    if not system_parent:
+        return
+    exists = await Menu.filter(path="ops-center", parent_id=system_parent.id).exists()
+    if exists:
+        return
+    await Menu.create(
+        menu_type=MenuType.MENU,
+        name="运维中心",
+        path="ops-center",
+        order=7,
+        parent_id=system_parent.id,
+        icon="material-symbols:settings-account-box-outline",
+        is_hidden=False,
+        component="/system/ops-center",
+        keepalive=False,
+        redirect="",
+    )
 
 
 async def init_apis():

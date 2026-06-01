@@ -13,6 +13,26 @@
 - **库存管理**：库存记录与库存变动查询。
 - **基础能力**：JWT 鉴权、动态路由、接口级权限控制。
 
+### 两期课程设计落地情况
+- **一期工程**：已覆盖注册登录、商品管理、仓库管理、财务管理四大模块，并补充 `课程总览`、`仓库中心`、`财务中心` 页面用于课程展示与答辩。
+- **二期工程**：已覆盖会员、员工、销售、供应商、系统管理五大模块，并在会员/员工/供应商/销售页面增加二级功能说明区。
+- **业务闭环**：已打通商品上架、库存作业、销售开单、退货回补、财务汇总、日志留痕等核心链路。
+- **演示建议**：可按“课程总览 -> 商品/库存 -> 销售/财务 -> 会员/员工/供应商 -> 系统运维”顺序进行演示。
+
+### 课程设计模块映射
+#### 第一期工程：系统分析与设计实验
+- **注册及登录模块**：`/login`、`/system/user`
+- **商品管理模块**：`/store/product-category`、`/store/product`
+- **仓库管理模块**：`/store/warehouse-center`、`/store/inventory-balance`、`/store/inventory-txn`、`/store/inventory-warning`
+- **财务管理模块**：`/store/finance-center`、`/store/sales`
+
+#### 第二期工程：软件开发与管理课程设计
+- **会员管理模块**：`/store/member`
+- **员工管理模块**：`/store/store-employee`
+- **销售管理模块**：`/store/sales`
+- **供应商管理模块**：`/store/supplier`
+- **系统管理模块**：`/system/user`、`/system/role`、`/system/menu`、`/system/api`、`/system/dept`、`/system/auditlog`、`/system/ops-center`
+
 ### 默认测试账号
 - username: admin
 - password: 123456

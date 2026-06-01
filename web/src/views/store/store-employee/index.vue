@@ -18,6 +18,13 @@ const queryItems = ref({})
 const vPermission = resolveDirective('permission')
 const tableRows = ref([])
 
+const employeeFeatureBoards = [
+  { title: '岗位管理', desc: '通过岗位字段维护店长、收银员、理货员等岗位，为后续排班和权限绑定提供基础。' },
+  { title: '员工排班管理', desc: '已预留排班展示位，可基于岗位和门店时间段扩展正式班次配置。' },
+  { title: '考勤管理', desc: '当前页面展示在岗状态和入职信息，后续可增加签到签退、请假和异常记录。' },
+  { title: '工资管理', desc: '已预留薪资核算入口，后续可按岗位、出勤和绩效计算工资结果。' },
+]
+
 const {
   modalVisible,
   modalTitle,
@@ -138,6 +145,12 @@ const columns = [
       >
         <div class="store-summary-label">{{ item.title }}</div>
         <div class="store-summary-value">{{ item.value }}</div>
+      </div>
+    </section>
+    <section class="feature-grid">
+      <div v-for="item in employeeFeatureBoards" :key="item.title" class="feature-card">
+        <div class="feature-title">{{ item.title }}</div>
+        <div class="feature-desc">{{ item.desc }}</div>
       </div>
     </section>
     <template #action>
@@ -273,5 +286,32 @@ const columns = [
 .store-summary-item.danger {
   background: #fff2f0;
   border-color: #f6d9d2;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.feature-card {
+  border-radius: 10px;
+  border: 1px solid #e8eef6;
+  background: #fff;
+  padding: 14px;
+}
+
+.feature-title {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.feature-desc {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.7;
 }
 </style>

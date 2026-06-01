@@ -29,6 +29,13 @@ const vPermission = resolveDirective('permission')
 const categoryOptions = ref([])
 const tableRows = ref([])
 
+const productFeatureBoards = [
+  { title: '商品信息录入与维护', desc: '覆盖商品编码、名称、条码、售价、预警阈值和上架状态等基础资料。' },
+  { title: '商品分类管理', desc: '与商品分类页联动，可维护类目结构、排序和启停状态。' },
+  { title: '商品库存基础管理', desc: '当前页面直接展示可用库存与库存状态，支撑商品与库存一体化管理。' },
+  { title: '促销活动管理', desc: '已预留促销活动说明位，后续可扩展特价、满减、会员价等营销规则。' },
+]
+
 const {
   modalVisible,
   modalTitle,
@@ -198,6 +205,12 @@ const columns = [
         <div class="store-summary-value">{{ item.value }}</div>
       </div>
     </section>
+    <section class="feature-grid">
+      <div v-for="item in productFeatureBoards" :key="item.title" class="feature-card">
+        <div class="feature-title">{{ item.title }}</div>
+        <div class="feature-desc">{{ item.desc }}</div>
+      </div>
+    </section>
     <template #action>
       <NButton v-permission="'post/api/v1/product/create'" type="primary" @click="handleAdd">
         <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新建商品
@@ -346,5 +359,32 @@ const columns = [
 .store-summary-item.danger {
   background: #fff2f0;
   border-color: #f6d9d2;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.feature-card {
+  border-radius: 10px;
+  border: 1px solid #e8eef6;
+  background: #fff;
+  padding: 14px;
+}
+
+.feature-title {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.feature-desc {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.7;
 }
 </style>

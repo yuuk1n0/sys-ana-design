@@ -35,6 +35,13 @@ const levelOptions = [
   { label: '钻石会员', value: 'DIAMOND' },
 ]
 
+const memberFeatureBoards = [
+  { title: '会员等级管理', desc: '通过等级字段维护普通、银卡、金卡、钻石等层级，支撑差异化会员运营。' },
+  { title: '积分政策管理', desc: '当前页面支持积分维护，可继续扩展积分获取、扣减与活动赠分规则。' },
+  { title: '消费记录查询', desc: '销售管理页已支持按会员生成销售单据，可作为会员消费记录来源。' },
+  { title: '积分兑换管理', desc: '已预留积分兑换展示位，后续可基于商品与积分规则扩展兑换单。' },
+]
+
 const {
   modalVisible,
   modalTitle,
@@ -177,6 +184,12 @@ const columns = [
         <div class="store-summary-value">{{ item.value }}</div>
       </div>
     </section>
+    <section class="feature-grid">
+      <div v-for="item in memberFeatureBoards" :key="item.title" class="feature-card">
+        <div class="feature-title">{{ item.title }}</div>
+        <div class="feature-desc">{{ item.desc }}</div>
+      </div>
+    </section>
     <template #action>
       <NButton v-permission="'post/api/v1/member/create'" type="primary" @click="handleAdd">
         <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新增会员
@@ -310,5 +323,32 @@ const columns = [
 .store-summary-item.danger {
   background: #fff2f0;
   border-color: #f6d9d2;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.feature-card {
+  border-radius: 10px;
+  border: 1px solid #e8eef6;
+  background: #fff;
+  padding: 14px;
+}
+
+.feature-title {
+  color: #111827;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.feature-desc {
+  margin-top: 8px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.7;
 }
 </style>

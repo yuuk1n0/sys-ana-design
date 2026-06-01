@@ -86,7 +86,6 @@
               <div text-12 op-65>{{ item.stock }}</div>
             </div>
           </div>
-          <div mt-8 text-12 op-60>{{ $t('views.workbench.text_placeholder_data') }}</div>
         </n-card>
       </n-card>
     </div>
