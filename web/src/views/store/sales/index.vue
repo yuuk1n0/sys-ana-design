@@ -51,13 +51,6 @@ const orderForm = ref({
   items: [{ product_id: null, qty: 1 }],
 })
 
-const salesFeatureBoards = [
-  { title: '销售订单录入与管理', desc: '当前支持销售开单、业务单据查询和明细回看，满足门店销售台账管理。' },
-  { title: '销售退货管理', desc: '退货录入与库存回补已经联通，可直接展示销售退货业务闭环。' },
-  { title: '销售统计报表', desc: '销售统计页结合财务日报，输出销售额、退货额、净销量等经营指标。' },
-  { title: '商品销售排行榜', desc: '已预留商品销售排行榜区，可基于销售流水继续扩展热销商品榜单。' },
-]
-
 const salesRankingPreview = [
   { name: '精品鸡蛋 30 枚装', sales: '2,480 件', note: '高频刚需' },
   { name: '巴氏鲜牛奶 950ml', sales: '2,160 件', note: '乳品热销' },
@@ -356,13 +349,6 @@ const detailColumns = [
       >
         <div class="store-summary-label">{{ item.title }}</div>
         <div class="store-summary-value">{{ item.value }}</div>
-      </div>
-    </section>
-
-    <section class="feature-grid">
-      <div v-for="item in salesFeatureBoards" :key="item.title" class="feature-card">
-        <div class="feature-title">{{ item.title }}</div>
-        <div class="feature-desc">{{ item.desc }}</div>
       </div>
     </section>
 

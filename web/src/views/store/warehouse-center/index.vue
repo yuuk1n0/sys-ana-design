@@ -39,24 +39,6 @@ const cards = computed(() => [
   { title: '预警商品', value: overview.value.inventory_warning_count || 0, type: 'danger' },
 ])
 
-const taskBoards = [
-  {
-    title: '仓库信息管理',
-    desc: '维护门店仓储对象、货位规则与商品承载范围，作为入库、出库和盘点的统一入口。',
-  },
-  {
-    title: '入库出库管理',
-    desc: '当前已接入库存作业与业务流水，可从库存流水页执行采购入库、业务出库与销售扣减。',
-  },
-  {
-    title: '库存盘点管理',
-    desc: '提供盘点能力预留位，可按库存流水中的盘盈、盘亏类型扩展正式盘点单据。',
-  },
-  {
-    title: '库存报警管理',
-    desc: '基于库存阈值自动识别低库存商品，并在预警区展示待补货缺口。',
-  },
-]
 
 function openPage(path) {
   router.push(path)
@@ -76,13 +58,6 @@ function openPage(path) {
         <div v-for="item in cards" :key="item.title" class="metric-card" :class="item.type">
           <div class="metric-label">{{ item.title }}</div>
           <div class="metric-value">{{ item.value }}</div>
-        </div>
-      </section>
-
-      <section class="board-grid">
-        <div v-for="item in taskBoards" :key="item.title" class="board-card">
-          <div class="board-title">{{ item.title }}</div>
-          <div class="board-desc">{{ item.desc }}</div>
         </div>
       </section>
 

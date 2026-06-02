@@ -1,5 +1,5 @@
 import { h } from 'vue'
-import { Icon } from '@iconify/vue'
+import { Icon } from '@iconify/vue/offline'
 import { NIcon } from 'naive-ui'
 import SvgIcon from '@/components/icon/SvgIcon.vue'
 

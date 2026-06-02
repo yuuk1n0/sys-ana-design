@@ -1,6 +1,6 @@
 <script setup>
 import { computed, h, onMounted, ref, resolveDirective, withDirectives } from 'vue'
-import { NButton, NForm, NFormItem, NInput, NPopconfirm, NSelect, NSwitch, NTag } from 'naive-ui'
+import { NButton, NDatePicker, NForm, NFormItem, NInput, NPopconfirm, NSelect, NSwitch, NTag } from 'naive-ui'
 
 import CommonPage from '@/components/page/CommonPage.vue'
 import QueryBarItem from '@/components/query-bar/QueryBarItem.vue'
@@ -17,13 +17,6 @@ const $table = ref(null)
 const queryItems = ref({})
 const vPermission = resolveDirective('permission')
 const tableRows = ref([])
-
-const employeeFeatureBoards = [
-  { title: '岗位管理', desc: '通过岗位字段维护店长、收银员、理货员等岗位，为后续排班和权限绑定提供基础。' },
-  { title: '员工排班管理', desc: '已预留排班展示位，可基于岗位和门店时间段扩展正式班次配置。' },
-  { title: '考勤管理', desc: '当前页面展示在岗状态和入职信息，后续可增加签到签退、请假和异常记录。' },
-  { title: '工资管理', desc: '已预留薪资核算入口，后续可按岗位、出勤和绩效计算工资结果。' },
-]
 
 const {
   modalVisible,
@@ -147,12 +140,7 @@ const columns = [
         <div class="store-summary-value">{{ item.value }}</div>
       </div>
     </section>
-    <section class="feature-grid">
-      <div v-for="item in employeeFeatureBoards" :key="item.title" class="feature-card">
-        <div class="feature-title">{{ item.title }}</div>
-        <div class="feature-desc">{{ item.desc }}</div>
-      </div>
-    </section>
+
     <template #action>
       <NButton v-permission="'post/api/v1/store-employee/create'" type="primary" @click="handleAdd">
         <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新增员工
@@ -231,7 +219,15 @@ const columns = [
           <NInput v-model:value="modalForm.job_title" placeholder="请输入岗位，如店长/收银员" />
         </NFormItem>
         <NFormItem label="入职日期" path="hire_date">
-          <NInput v-model:value="modalForm.hire_date" placeholder="请输入入职日期，例如 2026-05-28" />
+          <NDatePicker
+            v-model:formatted-value="modalForm.hire_date"
+            type="date"
+            value-format="yyyy-MM-dd"
+            format="yyyy-MM-dd"
+            clearable
+            style="width: 100%"
+            placeholder="请选择入职日期"
+          />
         </NFormItem>
         <NFormItem label="状态" path="status">
           <NSwitch v-model:value="modalForm.status" />

@@ -28,13 +28,6 @@ const queryItems = ref({})
 const vPermission = resolveDirective('permission')
 const tableRows = ref([])
 
-const supplierFeatureBoards = [
-  { title: '供应商合同管理', desc: '当前已维护账期、联系人和状态信息，可作为合同台账、结算周期管理的基础。' },
-  { title: '供应商评价管理', desc: '已预留评价展示位，后续可结合交付及时率、质量异常与合作评分扩展。' },
-  { title: '采购订单管理', desc: '可基于供应商与库存预警扩展采购申请、采购订单和到货登记流程。' },
-  { title: '协同补货管理', desc: '供应商与库存预警页联动后，可形成课程设计中的采购补货闭环。' },
-]
-
 const {
   modalVisible,
   modalTitle,
@@ -159,12 +152,7 @@ const columns = [
         <div class="store-summary-value">{{ item.value }}</div>
       </div>
     </section>
-    <section class="feature-grid">
-      <div v-for="item in supplierFeatureBoards" :key="item.title" class="feature-card">
-        <div class="feature-title">{{ item.title }}</div>
-        <div class="feature-desc">{{ item.desc }}</div>
-      </div>
-    </section>
+
     <template #action>
       <NButton v-permission="'post/api/v1/supplier/create'" type="primary" @click="handleAdd">
         <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新增供应商

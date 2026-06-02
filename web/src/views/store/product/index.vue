@@ -29,13 +29,6 @@ const vPermission = resolveDirective('permission')
 const categoryOptions = ref([])
 const tableRows = ref([])
 
-const productFeatureBoards = [
-  { title: '商品信息录入与维护', desc: '覆盖商品编码、名称、条码、售价、预警阈值和上架状态等基础资料。' },
-  { title: '商品分类管理', desc: '与商品分类页联动，可维护类目结构、排序和启停状态。' },
-  { title: '商品库存基础管理', desc: '当前页面直接展示可用库存与库存状态，支撑商品与库存一体化管理。' },
-  { title: '促销活动管理', desc: '已预留促销活动说明位，后续可扩展特价、满减、会员价等营销规则。' },
-]
-
 const {
   modalVisible,
   modalTitle,
@@ -75,12 +68,14 @@ function getCategoryName(categoryId) {
 }
 
 const rules = {
-  category_id: [{ required: true, message: '请选择分类', trigger: ['change'] }],
+  category_id: [{ required: true, type: 'number', message: '请选择分类', trigger: ['change'] }],
   product_code: [{ required: true, message: '请输入商品编码', trigger: ['input', 'blur'] }],
   name: [{ required: true, message: '请输入商品名称', trigger: ['input', 'blur'] }],
   unit: [{ required: true, message: '请输入单位', trigger: ['input', 'blur'] }],
-  sale_price: [{ required: true, message: '请输入售价', trigger: ['input', 'blur'] }],
-  low_stock_threshold: [{ required: true, message: '请输入预警阈值', trigger: ['input', 'blur'] }],
+  sale_price: [{ required: true, type: 'number', message: '请输入售价', trigger: ['change', 'blur'] }],
+  low_stock_threshold: [
+    { required: true, type: 'number', message: '请输入预警阈值', trigger: ['change', 'blur'] },
+  ],
 }
 
 const summaryCards = computed(() => {
@@ -205,12 +200,7 @@ const columns = [
         <div class="store-summary-value">{{ item.value }}</div>
       </div>
     </section>
-    <section class="feature-grid">
-      <div v-for="item in productFeatureBoards" :key="item.title" class="feature-card">
-        <div class="feature-title">{{ item.title }}</div>
-        <div class="feature-desc">{{ item.desc }}</div>
-      </div>
-    </section>
+
     <template #action>
       <NButton v-permission="'post/api/v1/product/create'" type="primary" @click="handleAdd">
         <TheIcon icon="material-symbols:add" :size="18" class="mr-5" />新建商品
