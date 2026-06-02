@@ -94,14 +94,12 @@ async function handleLogin() {
     await addDynamicRoutes()
     if (query.redirect) {
       const path = query.redirect
-      console.log('path', { path, query })
       Reflect.deleteProperty(query, 'redirect')
       router.push({ path, query })
     } else {
       router.push('/')
     }
-  } catch (e) {
-    console.error('login error', e.error)
+  } catch {
   }
   loading.value = false
 }

@@ -6,7 +6,6 @@ import {
   NCheckboxGroup,
   NForm,
   NFormItem,
-  NImage,
   NInput,
   NSpace,
   NSwitch,
@@ -25,7 +24,6 @@ import CrudTable from '@/components/table/CrudTable.vue'
 
 import { formatDate, renderIcon } from '@/utils'
 import { useCRUD } from '@/composables'
-// import { loginTypeMap, loginTypeOptions } from '@/constant/data'
 import api from '@/api'
 import TheIcon from '@/components/icon/TheIcon.vue'
 import { useUserStore } from '@/store'

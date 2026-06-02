@@ -194,9 +194,8 @@ const columns = [
 
                   active.value = true
                   role_id.value = row.id
-                } catch (error) {
-                  // 错误处理
-                  console.error('Error loading data:', error)
+                } catch {
+                  // 忽略请求失败，由现有请求拦截器统一处理提示
                 }
               },
             },

@@ -11,7 +11,6 @@ const emit = defineEmits(['update:value'])
 
 const choosed = ref(props.value) // 选中值
 const icons = ref(iconData)
-// const icons = ref(iconData.filter((icon) => icon.includes(choosed.value))) // 可选图标列表
 
 function filterIcons() {
   icons.value = iconData.filter((item) => item.includes(choosed.value))

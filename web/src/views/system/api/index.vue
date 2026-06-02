@@ -10,7 +10,6 @@ import TheIcon from '@/components/icon/TheIcon.vue'
 
 import { renderIcon } from '@/utils'
 import { useCRUD } from '@/composables'
-// import { loginTypeMap, loginTypeOptions } from '@/constant/data'
 import api from '@/api'
 
 defineOptions({ name: 'API管理' })

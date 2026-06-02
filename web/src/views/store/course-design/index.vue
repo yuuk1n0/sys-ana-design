@@ -64,7 +64,7 @@ function openModule(route) {
         </div>
       </section>
 
-      <section class="plan-board">
+      <!-- <section class="plan-board">
         <div class="section-title">开发阶段建议</div>
         <div class="plan-grid">
           <div v-for="item in dashboard.phase_plan" :key="item.stage" class="plan-item">
@@ -73,7 +73,7 @@ function openModule(route) {
             <div class="plan-duration">{{ item.duration }}</div>
           </div>
         </div>
-      </section>
+      </section> -->
 
       <section class="module-board">
         <div class="section-title">一期工程</div>

@@ -42,8 +42,6 @@ class DeptController(CRUDBase[Dept, DeptCreate, DeptUpdate]):
 
     async def update_dept_closure(self, obj: Dept):
         parent_depts = await DeptClosure.filter(descendant=obj.parent_id)
-        for i in parent_depts:
-            print(i.ancestor, i.descendant)
         dept_closure_objs: list[DeptClosure] = []
         # 插入父级关系
         for item in parent_depts:

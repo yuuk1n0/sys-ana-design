@@ -10,7 +10,6 @@ import TheIcon from '@/components/icon/TheIcon.vue'
 
 import { renderIcon } from '@/utils'
 import { useCRUD } from '@/composables'
-// import { loginTypeMap, loginTypeOptions } from '@/constant/data'
 import api from '@/api'
 
 defineOptions({ name: '部门管理' })
@@ -92,7 +91,6 @@ const columns = [
               type: 'primary',
               style: 'margin-left: 8px;',
               onClick: () => {
-                console.log('row', row.parent_id)
                 if (row.parent_id === 0) {
                   isDisabled.value = true
                 } else {
