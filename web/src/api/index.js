@@ -6,6 +6,10 @@ export default {
   getUserMenu: () => request.get('/base/usermenu'),
   getUserApi: () => request.get('/base/userapi'),
   getCourseDesignOverview: () => request.get('/base/course_design_overview'),
+  // 工作台
+  getWorkbenchDashboard: (params = {}) => request.get('/workbench/dashboard', { params }),
+  // AI经营分析
+  operateAIChat: (data = {}) => request.post('/ai/operate/chat', data),
   // 个人资料
   updatePassword: (data = {}) => request.post('/base/update_password', data),
   // 用户
@@ -52,6 +56,7 @@ export default {
   getProductById: (params = {}) => request.get('/product/get', { params }),
   createProduct: (data = {}, params = {}) => request.post('/product/create', data, { params }),
   updateProduct: (data = {}, params = {}) => request.post('/product/update', data, { params }),
+  deleteProduct: (params = {}) => request.delete('/product/delete', { params }),
   changeProductStatus: (data = {}, params = {}) =>
     request.post('/product/change_status', data, { params }),
   // 库存

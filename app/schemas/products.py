@@ -32,3 +32,7 @@ class ProductUpdate(BaseModel):
 class ProductStatusUpdate(BaseModel):
     id: int = Field(..., description="商品ID")
     status: bool = Field(..., description="状态")
+
+
+class ProductDelete(BaseModel):
+    id: int = Field(..., description="商品ID")

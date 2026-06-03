@@ -37,13 +37,14 @@ const {
   modalForm,
   modalFormRef,
   handleEdit,
+  handleDelete,
   handleAdd,
 } = useCRUD({
   name: '商品',
   initForm: { status: true, stock_status: true, low_stock_threshold: 0 },
   doCreate: api.createProduct,
   doUpdate: api.updateProduct,
-  doDelete: () => Promise.resolve(),
+  doDelete: api.deleteProduct,
   refresh: () => $table.value?.handleSearch(),
 })
 
@@ -146,7 +147,7 @@ const columns = [
   {
     title: '操作',
     key: 'actions',
-    width: 120,
+    width: 180,
     align: 'center',
     render(row) {
       return [
@@ -179,6 +180,25 @@ const columns = [
                 [[vPermission, 'post/api/v1/product/change_status']]
               ),
             default: () => h('div', {}, `确定${row.status ? '下架' : '上架'}该商品吗?`),
+          }
+        ),
+        h(
+          NPopconfirm,
+          { onPositiveClick: () => handleDelete({ id: row.id }) },
+          {
+            trigger: () =>
+              withDirectives(
+                h(
+                  NButton,
+                  { size: 'small', type: 'error', style: 'margin-left: 8px;' },
+                  {
+                    default: () => '删除',
+                    icon: renderIcon('material-symbols:delete-outline', { size: 16 }),
+                  }
+                ),
+                [[vPermission, 'delete/api/v1/product/delete']]
+              ),
+            default: () => h('div', {}, '确定删除该商品吗?'),
           }
         ),
       ]

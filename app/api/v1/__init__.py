@@ -4,6 +4,7 @@ from app.core.dependency import DependPermission
 
 from .apis import apis_router
 from .auditlog import auditlog_router
+from .ai import ai_router
 from .base import base_router
 from .depts import depts_router
 from .finances import finances_router
@@ -17,6 +18,7 @@ from .members import members_router
 from .store_employees import store_employees_router
 from .suppliers import suppliers_router
 from .users import users_router
+from .workbench import workbench_router
 
 v1_router = APIRouter()
 
@@ -27,6 +29,8 @@ v1_router.include_router(menus_router, prefix="/menu", dependencies=[DependPermi
 v1_router.include_router(apis_router, prefix="/api", dependencies=[DependPermission])
 v1_router.include_router(depts_router, prefix="/dept", dependencies=[DependPermission])
 v1_router.include_router(auditlog_router, prefix="/auditlog", dependencies=[DependPermission])
+v1_router.include_router(workbench_router, prefix="/workbench", dependencies=[DependPermission])
+v1_router.include_router(ai_router, prefix="/ai", dependencies=[DependPermission])
 v1_router.include_router(product_categories_router, prefix="/product-category", dependencies=[DependPermission])
 v1_router.include_router(products_router, prefix="/product", dependencies=[DependPermission])
 v1_router.include_router(inventories_router, prefix="/inventory", dependencies=[DependPermission])

@@ -98,3 +98,13 @@ async def change_product_status(
     _, current_store_id = await get_current_store_id(store_id)
     await product_controller.change_status(store_id=current_store_id, obj_in=req_in)
     return Success(msg="Updated Successfully")
+
+
+@router.delete("/delete", summary="删除商品")
+async def delete_product(
+    id: int = Query(..., description="商品ID"),
+    store_id: int | None = Query(None, description="门店ID"),
+):
+    operator_id, current_store_id = await get_current_store_id(store_id)
+    await product_controller.delete_product(store_id=current_store_id, operator_id=operator_id, product_id=id)
+    return Success(msg="Deleted Success")

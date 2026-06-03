@@ -2,7 +2,7 @@ from fastapi import HTTPException
 from tortoise.transactions import atomic
 
 from app.core.crud import CRUDBase
-from app.models.admin import Product
+from app.models.admin import InventoryTxn, Product, StoreInventory
 from app.schemas.inventories import InventoryInitTxnCreate
 from app.schemas.products import ProductCreate, ProductStatusUpdate, ProductUpdate
 
@@ -78,6 +78,28 @@ class ProductController(CRUDBase[Product, ProductCreate, ProductUpdate]):
             raise HTTPException(status_code=403, detail="无权限访问该商品")
         product_obj.status = obj_in.status
         await product_obj.save()
+
+    @atomic("mysql")
+    async def delete_product(self, *, store_id: int, operator_id: int, product_id: int):
+        product_obj = await self.get(id=product_id)
+        if product_obj.store_id != store_id:
+            raise HTTPException(status_code=403, detail="无权限访问该商品")
+
+        inventory_obj = await inventory_controller.get_by_store_product(store_id=store_id, product_id=product_id)
+        available_qty = inventory_obj.available_qty if inventory_obj else 0
+        locked_qty = inventory_obj.locked_qty if inventory_obj else 0
+        if available_qty != 0 or locked_qty != 0:
+            raise HTTPException(status_code=400, detail="商品存在库存，无法删除")
+
+        has_biz_txn = (
+            await InventoryTxn.filter(store_id=store_id, product_id=product_id).exclude(biz_type="INIT").exists()
+        )
+        if has_biz_txn:
+            raise HTTPException(status_code=400, detail="商品已有业务流水，无法删除")
+
+        await InventoryTxn.filter(store_id=store_id, product_id=product_id).delete()
+        await StoreInventory.filter(store_id=store_id, product_id=product_id).delete()
+        await self.remove(id=product_id)
 
 
 product_controller = ProductController()
