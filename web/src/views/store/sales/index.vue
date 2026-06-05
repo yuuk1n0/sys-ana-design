@@ -1,5 +1,5 @@
 <script setup>
-import { computed, h, onMounted, ref } from 'vue'
+import { computed, h, nextTick, onActivated, onMounted, ref } from 'vue'
 import {
   NButton,
   NDataTable,
@@ -26,6 +26,7 @@ defineOptions({ name: '销售管理' })
 
 const $statementTable = ref(null)
 const $orderTable = ref(null)
+const activeTab = ref('orders')
 const statementQueryItems = ref({})
 const orderQueryItems = ref({})
 const statementDatetimeRange = ref(null)
@@ -76,9 +77,27 @@ const orderRules = {
 
 onMounted(async () => {
   await Promise.all([loadProducts(), loadMembers()])
-  $orderTable.value?.handleSearch()
-  $statementTable.value?.handleSearch()
+  await nextTick()
+  await refreshActiveTab()
 })
+
+onActivated(() => {
+  refreshActiveTab()
+})
+
+async function refreshActiveTab() {
+  await nextTick()
+  if (activeTab.value === 'statement') {
+    $statementTable.value?.handleSearch()
+    return
+  }
+  $orderTable.value?.handleSearch()
+}
+
+async function handleTabChange(name) {
+  activeTab.value = name
+  await refreshActiveTab()
+}
 
 function formatTimestamp(timestamp) {
   const date = new Date(timestamp)
@@ -362,7 +381,7 @@ const detailColumns = [
       </div>
     </section>
 
-    <NTabs type="line" animated>
+    <NTabs v-model:value="activeTab" type="line" animated @update:value="handleTabChange">
       <NTabPane name="orders" tab="业务单据">
         <CrudTable
           ref="$orderTable"

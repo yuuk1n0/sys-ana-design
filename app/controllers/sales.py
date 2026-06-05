@@ -139,9 +139,20 @@ class SalesController:
             group["total_amount"] += float(unit_price) * abs_qty
             group["line_summary"].append(f"{product_name or product_code} x{abs_qty}")
 
+        member_ids = {item.get("member_id") for item in grouped.values()}
+        member_ids = {member_id for member_id in member_ids if isinstance(member_id, int)}
+        member_map = {}
+        if member_ids:
+            member_rows = await Member.filter(store_id=store_id, id__in=list(member_ids)).all()
+            member_map = {item.id: item for item in member_rows}
+
         rows = []
         for biz_no_item in ordered_biz_nos:
             item = grouped[biz_no_item]
+            member_obj = member_map.get(item.get("member_id"))
+            if member_obj:
+                item["member_no"] = member_obj.member_no
+                item["member_name"] = member_obj.name
             item["line_summary"] = "；".join(item["line_summary"][:3])
             rows.append(item)
 
@@ -162,6 +173,10 @@ class SalesController:
         product_rows = await Product.filter(store_id=store_id, id__in=product_ids).all()
         product_map = {item.id: item for item in product_rows}
         first_meta = inventory_controller.parse_txn_remark(txn_rows[0].remark)
+        member_id = first_meta.get("member_id")
+        member_obj = None
+        if isinstance(member_id, int):
+            member_obj = await Member.filter(id=member_id, store_id=store_id).first()
 
         lines = []
         total_amount = Decimal("0")
@@ -190,9 +205,9 @@ class SalesController:
             "biz_type": txn_rows[0].biz_type,
             "created_at": txn_rows[0].created_at.strftime("%Y-%m-%d %H:%M:%S"),
             "operator_id": txn_rows[0].operator_id,
-            "member_id": first_meta.get("member_id"),
-            "member_no": first_meta.get("member_no", ""),
-            "member_name": first_meta.get("member_name", ""),
+            "member_id": member_id,
+            "member_no": member_obj.member_no if member_obj else first_meta.get("member_no", ""),
+            "member_name": member_obj.name if member_obj else first_meta.get("member_name", ""),
             "remark": first_meta.get("remark", ""),
             "total_qty": total_qty,
             "total_amount": float(total_amount),
